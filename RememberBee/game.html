@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Skittles Keypad</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <a href="index.html" class="home-btn">Home</a>
+  <div class="game-container">
+    <div class="line-selection-container">
+      <label for="lineSelect">Select a Line:</label>
+      <select id="lineSelect">
+        <option value="" disabled selected>Select A Line</option>
+        <!-- Options will be populated dynamically -->
+      </select>
+    </div>
+
+    <div class="score-container">
+      <p id="scoreDisplay">Score: 0</p>
+    </div>
+
+    <div class="user-entry-container">
+      <p id="userEntryDisplay">Entry: </p>
+    </div>
+
+    <div class="keypad-container">
+      <button class="keypad-button">1</button>
+      <button class="keypad-button">2</button>
+      <button class="keypad-button">3</button>
+      <button class="keypad-button">4</button>
+      <button class="keypad-button">5</button>
+      <button class="keypad-button">6</button>
+      <button class="keypad-button">7</button>
+      <button class="keypad-button">8</button>
+      <button class="keypad-button">9</button>
+      <button class="keypad-button clear">Clear</button>
+      <button class="keypad-button">0</button>
+      <button class="keypad-button submit" id="submitButton">Submit</button>
+    </div>
+  </div>
+
+  <div id="overlay" class="overlay">
+    <div id="overlayContent" class="overlay-content"></div>
+  </div>
+
+  <script type="module" src="scripts.js"></script>
+</body>
+</html>
