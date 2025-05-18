@@ -48,7 +48,7 @@ h1 {
   height: 64px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  background: #fff;
+  background: transparent;
 }
 /* Button text color overrides for green and red buttons */
 .game-link[href="SignalSlayer/index.html"] .button-text,
