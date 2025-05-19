@@ -59,7 +59,32 @@ imageContainer.addEventListener("click", (event) => {
         overlay.className = "overlay";
         overlay.style.left = `${currentSignal.x}px`;
         overlay.style.top = `${currentSignal.y}px`;
-        overlay.textContent = currentSignal.name;
+
+        // Determine which icon to use based on signal name ending
+        const signalName = currentSignal.name;
+        let iconSrc = "";
+        if (/\d$/.test(signalName)) {
+            iconSrc = "images/sig1.png";
+        } else if (/[a-zA-Z]$/.test(signalName)) {
+            iconSrc = "images/sig2.png";
+        }
+
+        // Create icon image element if applicable
+        if (iconSrc) {
+            const iconImg = document.createElement("img");
+            iconImg.src = iconSrc;
+            iconImg.alt = "Signal Icon";
+            iconImg.style.height = "18px";
+            iconImg.style.verticalAlign = "middle";
+            iconImg.style.marginRight = "6px";
+            overlay.appendChild(iconImg);
+        }
+
+        // Add signal name after icon
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = signalName;
+        overlay.appendChild(nameSpan);
+
         imageContainer.appendChild(overlay);
 
         currentSignalIndex++;
