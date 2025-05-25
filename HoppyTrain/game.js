@@ -8,7 +8,7 @@ const gameOverMsg = document.getElementById('gameOverMsg');
 const restartBtn = document.getElementById('restartBtn');
 
 // Game settings
-const GRAVITY = 0.5;
+const GRAVITY = 0.25; // Reduced gravity by 50%
 const FLAP = -8;
 const PLAYER_SIZE = 40;
 const BOX_WIDTH = 80;
@@ -183,12 +183,16 @@ startBtn.onclick = () => {
     startScreen.style.display = 'none';
     gameOverScreen.style.display = 'none';
     resetGame();
-    gameLoop();
+    setTimeout(() => {
+        gameLoop();
+    }, 1000); // 1 second delay
 };
 restartBtn.onclick = () => {
     gameOverScreen.style.display = 'none';
     resetGame();
-    gameLoop();
+    setTimeout(() => {
+        gameLoop();
+    }, 1000); // 1 second delay
 };
 window.addEventListener('keydown', e => {
     if (e.code === 'Space' || e.key === ' ') {
