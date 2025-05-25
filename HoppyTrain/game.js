@@ -137,7 +137,6 @@ function update() {
                 score++;
                 currentCorrectWord = pickRandom(correctWords);
                 spawnBoxes();
-                player.vy = FLAP; // Give a boost
                 passed = true;
             } else {
                 // Hit wrong box
