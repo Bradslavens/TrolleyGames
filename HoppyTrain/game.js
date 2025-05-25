@@ -11,10 +11,10 @@ const restartBtn = document.getElementById('restartBtn');
 const GRAVITY = 0.125; // Reduced gravity by half again
 const FLAP = -6; // Increased jump speed by 50%
 const PLAYER_SIZE = 40;
-const BOX_WIDTH = 80;
+const BOX_WIDTH = 120; // Wider boxes for landscape
 const BOX_HEIGHT = 100;
 const GAP = 30;
-const BOX_SPEED = 2.5;
+const BOX_SPEED = 1.5; // Slower for more reaction time
 const WORD_FONT = '20px Segoe UI';
 
 // Word lists
@@ -22,6 +22,12 @@ const correctWords = ['apple', 'banana', 'grape', 'orange', 'lemon'];
 const incorrectWords = ['car', 'table', 'shoe', 'cloud', 'river', 'chair', 'book', 'phone'];
 
 let player, boxes, score, gameActive, currentCorrectWord;
+
+// Set canvas to landscape and responsive
+const GAME_WIDTH = 700;
+const GAME_HEIGHT = 400;
+canvas.width = GAME_WIDTH;
+canvas.height = GAME_HEIGHT;
 
 function resetGame() {
     player = {
