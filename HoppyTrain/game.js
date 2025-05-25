@@ -9,7 +9,7 @@ const restartBtn = document.getElementById('restartBtn');
 
 // Game settings
 const GRAVITY = 0.125; // Reduced gravity by half again
-const FLAP = -6; // Increased jump speed by 50%
+const FLAP = -3; // Reduced jump speed by another 50%
 const PLAYER_SIZE = 40;
 const BOX_WIDTH = 120; // Wider boxes for landscape
 const BOX_HEIGHT = 100;
