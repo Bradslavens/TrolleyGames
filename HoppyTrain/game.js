@@ -58,14 +58,13 @@ function spawnBoxes() {
             words.push(word);
         }
     }
-    // Stack boxes vertically, with a gap between
-    const totalHeight = 3 * BOX_HEIGHT + 2 * GAP;
-    const startY = (canvas.height - totalHeight) / 2;
+    // Make boxes touch top and bottom, no gap
+    const boxHeight = canvas.height / 3;
     boxes = words.map((word, i) => ({
         x: canvas.width,
-        y: startY + i * (BOX_HEIGHT + GAP),
+        y: i * boxHeight,
         width: BOX_WIDTH,
-        height: BOX_HEIGHT,
+        height: boxHeight,
         word,
         isCorrect: word === currentCorrectWord
     }));
