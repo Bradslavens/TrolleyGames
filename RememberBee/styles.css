@@ -167,3 +167,38 @@ body {
   background: #283593;
   transform: scale(1.05);
 }
+
+@media (max-width: 600px) {
+  .game-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    justify-content: flex-start;
+  }
+  .keypad-container {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    background: rgba(255,255,255,0.95);
+    z-index: 100;
+    padding-bottom: env(safe-area-inset-bottom, 10px);
+    box-shadow: 0 -2px 12px rgba(0,0,0,0.12);
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 10px;
+    justify-items: center;
+  }
+  .game-container {
+    padding-bottom: 340px; /* Reserve space for keypad on small screens */
+  }
+  .keypad-button {
+    width: 22vw;
+    height: 22vw;
+    max-width: 90px;
+    max-height: 90px;
+    min-width: 60px;
+    min-height: 60px;
+    font-size: 1.5em;
+  }
+}
