@@ -91,9 +91,13 @@ h1 {
     min-height: 56px;
     max-height: 80px;
     border-radius: 8px;
+    touch-action: manipulation;
   }
   .button-text {
     font-size: 2em;
     padding: 0 4px;
+  }
+  .game-link {
+    touch-action: manipulation;
   }
 }
