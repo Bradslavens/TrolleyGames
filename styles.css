@@ -19,7 +19,8 @@ body {
 }
 h1 {
   margin-bottom: 32px;
-  color: #1976d2;
+  color: #000;
+  font-weight: bold;
   text-shadow: 1px 1px 4px #fff;
 }
 .game-links {
@@ -72,9 +73,11 @@ h1 {
   .container {
     padding: 16px 4px;
     border-radius: 8px;
+    width: 90vw;
+    max-width: 400px;
   }
   h1 {
-    font-size: 1.4em;
+    font-size: 2.8em;
     margin-bottom: 20px;
   }
   .game-links {
@@ -84,11 +87,13 @@ h1 {
     width: 98vw;
     max-width: 320px;
     min-width: 180px;
-    height: 48px;
+    height: 14vw;
+    min-height: 56px;
+    max-height: 80px;
     border-radius: 8px;
   }
   .button-text {
-    font-size: 1em;
+    font-size: 2em;
     padding: 0 4px;
   }
 }
