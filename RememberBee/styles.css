@@ -33,6 +33,7 @@ body {
   justify-content: center;
   align-items: center;
   background-color: #ff4b4b;
+  touch-action: manipulation;
 }
 
 .keypad-button:nth-child(1) {
