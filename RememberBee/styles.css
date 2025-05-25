@@ -180,18 +180,18 @@ body {
     width: auto;
     background: none;
     box-shadow: none;
-    grid-template-columns: repeat(3, 100px);
-    grid-gap: 15px;
+    grid-template-columns: repeat(3, minmax(50px, 1fr));
+    grid-gap: 10px;
     justify-items: unset;
     padding-bottom: 0;
   }
   .keypad-button {
-    width: 100px;
-    height: 100px;
-    max-width: none;
-    max-height: none;
-    min-width: 0;
-    min-height: 0;
-    font-size: 24px;
+    width: 90px;
+    height: 90px;
+    font-size: 22px;
+    max-width: 22vw;
+    max-height: 22vw;
+    min-width: 50px;
+    min-height: 50px;
   }
 }
