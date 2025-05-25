@@ -8,8 +8,8 @@ const gameOverMsg = document.getElementById('gameOverMsg');
 const restartBtn = document.getElementById('restartBtn');
 
 // Game settings
-const GRAVITY = 0.25; // Reduced gravity by 50%
-const FLAP = -8;
+const GRAVITY = 0.125; // Reduced gravity by half again
+const FLAP = -4; // Reduced jump speed by half
 const PLAYER_SIZE = 40;
 const BOX_WIDTH = 80;
 const BOX_HEIGHT = 100;
