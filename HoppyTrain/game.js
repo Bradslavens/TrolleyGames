@@ -146,10 +146,7 @@ function update() {
         endGame('Game Over! Missed the correct word.');
     }
 
-    // Check for out of bounds
-    if (player.y + player.size / 2 > canvas.height || player.y - player.size / 2 < 0) {
-        endGame('Game Over! Out of bounds.');
-    }
+    // Remove out-of-bounds death (player can touch top/bottom)
 }
 
 function draw() {
