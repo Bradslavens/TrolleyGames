@@ -21,7 +21,6 @@ lineSelect.addEventListener('change', () => {
   currentSignalIndex = 0; // Reset to the first signal
   userInput = ""; // Clear user input
   score = 0; // Reset the score
-  updateScoreDisplay(); // Update the score display
   updateProgressBar(); // Reset progress bar
   // Remove the line selection element after selection
   const lineSelectionContainer = document.querySelector('.line-selection-container');
@@ -65,7 +64,6 @@ if (submitButton) {
       if (userInput === currentSignal) {
         console.log("Correct! Moving to the next signal.");
         score++; // Increment the score
-        updateScoreDisplay(); // Update the score display
         currentSignalIndex++; // Move to the next signal
         updateProgressBar(); // Update progress bar
         // Check if we've reached the end of the signal list
@@ -75,7 +73,6 @@ if (submitButton) {
           currentSignalIndex = 0; // Restart from the beginning
           userInput = ""; // Clear user input
           score = 0; // Reset the score
-          updateScoreDisplay(); // Update the score display
           updateProgressBar(); // Reset progress bar
         }
         userInput = "";
@@ -85,19 +82,10 @@ if (submitButton) {
         showOverlay(currentSignal); // Show the overlay with the correct answer
         currentSignalIndex = 0; // Reset to the first signal after a wrong guess
         score = 0; // Reset the score after a wrong guess
-        updateScoreDisplay(); // Update the score display
         updateProgressBar(); // Reset progress bar
       }
     }
   });
-}
-
-// Function to update the score display
-function updateScoreDisplay() {
-  const scoreDisplay = document.getElementById('scoreDisplay');
-  if (scoreDisplay) {
-    scoreDisplay.textContent = `Score: ${score}`;
-  }
 }
 
 // Function to update the user entry display
@@ -132,7 +120,7 @@ function resetGame() {
   currentSignalIndex = 0; // Reset to the first signal
   userInput = ""; // Clear user input
   score = 0; // Reset the score
-  updateScoreDisplay(); // Update the score display
+  updateProgressBar(); // Reset progress bar
 }
 
 // Update the user entry display with a delay before clearing
