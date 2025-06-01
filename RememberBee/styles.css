@@ -181,6 +181,9 @@ body {
   margin: 0;
   padding: 10px 0;
   text-align: center;
+  min-height: 1.2em;
+  min-width: 2em;
+  display: inline-block;
 }
 
 @media (max-width: 600px) {
