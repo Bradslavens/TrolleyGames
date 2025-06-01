@@ -21,8 +21,13 @@ lineSelect.addEventListener('change', () => {
   currentSignalIndex = 0; // Reset to the first signal
   userInput = ""; // Clear user input
   score = 0; // Reset the score
-  console.log(`Selected Line: ${currentLine}`);
   updateScoreDisplay(); // Update the score display
+  updateProgressBar(); // Reset progress bar
+  // Remove the line selection element after selection
+  const lineSelectionContainer = document.querySelector('.line-selection-container');
+  if (lineSelectionContainer) {
+    lineSelectionContainer.remove();
+  }
 });
 
 // Add event listeners to keypad buttons
@@ -62,7 +67,7 @@ if (submitButton) {
         score++; // Increment the score
         updateScoreDisplay(); // Update the score display
         currentSignalIndex++; // Move to the next signal
-
+        updateProgressBar(); // Update progress bar
         // Check if we've reached the end of the signal list
         if (currentSignalIndex >= signalList.length) {
           console.log("You've completed all signals! You won!");
@@ -71,6 +76,7 @@ if (submitButton) {
           userInput = ""; // Clear user input
           score = 0; // Reset the score
           updateScoreDisplay(); // Update the score display
+          updateProgressBar(); // Reset progress bar
         }
         userInput = "";
         updateUserEntryDisplay();
@@ -80,6 +86,7 @@ if (submitButton) {
         currentSignalIndex = 0; // Reset to the first signal after a wrong guess
         score = 0; // Reset the score after a wrong guess
         updateScoreDisplay(); // Update the score display
+        updateProgressBar(); // Reset progress bar
       }
     }
   });
@@ -134,4 +141,21 @@ function clearUserEntryDisplayWithDelay() {
     userInput = ""; // Clear user input
     updateUserEntryDisplay(); // Clear the user entry display
   }, 500); // 500ms delay
+}
+
+// Progress bar update function
+function updateProgressBar() {
+  const progressBar = document.getElementById('progressBar');
+  const progressLabel = document.getElementById('progressLabel');
+  if (!currentLine || !progressBar || !progressLabel) {
+    progressBar && (progressBar.style.width = '0%');
+    progressLabel && (progressLabel.textContent = '');
+    return;
+  }
+  const signalList = signals[currentLine].signalList;
+  const total = signalList.length;
+  const current = Math.min(currentSignalIndex, total);
+  const percent = Math.round((current / total) * 100);
+  progressBar.style.width = percent + '%';
+  progressLabel.textContent = `${current} / ${total}`;
 }
