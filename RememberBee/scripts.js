@@ -92,7 +92,7 @@ if (submitButton) {
 function updateUserEntryDisplay() {
   const userEntryDisplay = document.getElementById('userEntryDisplay');
   if (userEntryDisplay) {
-    userEntryDisplay.textContent = `Entry: ${userInput}`;
+    userEntryDisplay.textContent = userInput;
   }
 }
 
