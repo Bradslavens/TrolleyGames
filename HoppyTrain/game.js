@@ -21,7 +21,7 @@ const WORD_FONT = '20px Segoe UI';
 const correctWords = ['apple', 'banana', 'grape', 'orange', 'lemon'];
 const incorrectWords = ['car', 'table', 'shoe', 'cloud', 'river', 'chair', 'book', 'phone'];
 
-let player, boxes, score, gameActive, currentCorrectWord;
+let player, boxes, score, gameActive, currentCorrectWord, health;
 
 // Set canvas to landscape and responsive
 const GAME_WIDTH = 700;
@@ -37,6 +37,7 @@ function resetGame() {
         size: PLAYER_SIZE
     };
     score = 0;
+    health = 3;
     gameActive = true;
     boxes = [];
     spawnBoxes();
@@ -113,6 +114,30 @@ function drawScore() {
     ctx.restore();
 }
 
+function drawHearts() {
+    const heartSize = 28;
+    for (let i = 0; i < 3; i++) {
+        ctx.save();
+        ctx.globalAlpha = i < health ? 1 : 0.2;
+        ctx.beginPath();
+        // Draw a simple heart shape
+        const x = 30 + i * (heartSize + 10);
+        const y = 80;
+        ctx.moveTo(x, y);
+        ctx.bezierCurveTo(x, y - 8, x - 10, y - 18, x - 15, y - 5);
+        ctx.bezierCurveTo(x - 20, y + 10, x, y + 18, x, y + 28);
+        ctx.bezierCurveTo(x, y + 18, x + 20, y + 10, x + 15, y - 5);
+        ctx.bezierCurveTo(x + 10, y - 18, x, y - 8, x, y);
+        ctx.closePath();
+        ctx.fillStyle = '#e53935';
+        ctx.fill();
+        ctx.strokeStyle = '#b71c1c';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
+    }
+}
+
 function update() {
     if (!gameActive) return;
     player.vy += GRAVITY;
@@ -140,14 +165,26 @@ function update() {
                 passed = true;
             } else {
                 // Hit wrong box
-                endGame('Game Over! Wrong word.');
+                health--;
+                if (health <= 0) {
+                    endGame('Game Over! Out of hearts.');
+                } else {
+                    // Briefly flash or respawn boxes
+                    spawnBoxes();
+                }
+                passed = true;
             }
         }
     });
 
     // If boxes go off screen, respawn
     if (!passed && boxes[0].x + BOX_WIDTH < 0) {
-        endGame('Game Over! Missed the correct word.');
+        health--;
+        if (health <= 0) {
+            endGame('Game Over! Out of hearts.');
+        } else {
+            spawnBoxes();
+        }
     }
 
     // Remove out-of-bounds death (player can touch top/bottom)
@@ -158,6 +195,7 @@ function draw() {
     drawPlayer();
     drawBoxes();
     drawScore();
+    drawHearts();
 }
 
 function gameLoop() {
