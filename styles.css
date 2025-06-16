@@ -69,6 +69,48 @@ h1 {
   pointer-events: none;
   white-space: nowrap;
 }
+.login-screen {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.login-form {
+  background: #fff;
+  padding: 32px 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 260px;
+}
+.login-form h2 {
+  margin: 0 0 16px 0;
+  color: #333;
+}
+.login-form input {
+  padding: 10px;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  font-size: 1em;
+}
+.login-form button {
+  background: #0078d7;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.login-form button:hover {
+  background: #005fa3;
+}
 @media (max-width: 600px) {
   .container {
     padding: 16px 4px;
