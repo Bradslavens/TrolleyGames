@@ -51,6 +51,34 @@ app.post('/api/login', (req, res) => {
   });
 });
 
+// Login or create endpoint
+app.post('/api/login-or-create', (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password) return res.status(400).json({ error: 'Missing fields' });
+  db.get('SELECT * FROM users WHERE username = ?', [username], (err, user) => {
+    if (err) return res.status(500).json({ error: 'Server error' });
+    if (user) {
+      // User exists, check password
+      bcrypt.compare(password, user.password, (err, result) => {
+        if (result) {
+          res.json({ success: true });
+        } else {
+          res.status(401).json({ error: 'Invalid credentials' });
+        }
+      });
+    } else {
+      // User does not exist, create
+      bcrypt.hash(password, 10, (err, hash) => {
+        if (err) return res.status(500).json({ error: 'Server error' });
+        db.run('INSERT INTO users (username, password) VALUES (?, ?)', [username, hash], function(err) {
+          if (err) return res.status(500).json({ error: 'Could not create user' });
+          res.json({ success: true });
+        });
+      });
+    }
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
