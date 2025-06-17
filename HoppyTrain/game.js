@@ -25,6 +25,7 @@ const incorrectWords = ['car', 'table', 'shoe', 'cloud', 'river', 'chair', 'book
 let player, boxes, score, gameActive, currentCorrectWord, health;
 // Remove correctWords, add line selection
 let selectedLine = null;
+let signalIndex = 0;
 
 // Set canvas to landscape and responsive
 const GAME_WIDTH = 700;
@@ -45,10 +46,10 @@ function resetGame() {
     boxes = [];
     // Use selectedLine for currentCorrectWord
     if (!selectedLine) {
-        // Default to first line if not selected
         selectedLine = Object.keys(correctSignals)[0];
     }
-    currentCorrectWord = pickRandom(correctSignals[selectedLine]);
+    signalIndex = 0;
+    currentCorrectWord = correctSignals[selectedLine][signalIndex];
     spawnBoxes();
 }
 
@@ -168,7 +169,12 @@ function update() {
             if (box.isCorrect) {
                 // Passed through correct box
                 score++;
-                currentCorrectWord = pickRandom(correctSignals[selectedLine]);
+                signalIndex++;
+                if (signalIndex >= correctSignals[selectedLine].length) {
+                    endGame('Congratulations! You completed all signals.');
+                    return;
+                }
+                currentCorrectWord = correctSignals[selectedLine][signalIndex];
                 spawnBoxes();
                 passed = true;
             } else {
@@ -252,8 +258,7 @@ canvas.addEventListener('touchstart', flap);
 // Add logic to set selectedLine from UI
 window.setSelectedLine = function(line) {
     selectedLine = line;
-    // Optionally, store in DB via API
-    // Reset game with new line
+    signalIndex = 0;
     resetGame();
 }
 
