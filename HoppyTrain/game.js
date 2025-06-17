@@ -19,6 +19,7 @@ const BOX_HEIGHT = 100;
 const GAP = 30;
 const BOX_SPEED = 1.5; // Slower for more reaction time
 const WORD_FONT = '20px Segoe UI';
+const GROUND_HEIGHT = 30;
 
 // Word lists
 // Remove incorrectWords
@@ -154,6 +155,19 @@ function update() {
     player.vy += GRAVITY;
     player.y += player.vy;
 
+    // Bounce off the ground
+    if (player.y + player.size / 2 > canvas.height - GROUND_HEIGHT) {
+        player.y = canvas.height - GROUND_HEIGHT - player.size / 2;
+        player.vy = -player.vy * 0.6; // Lose some energy on bounce
+        // If bounce is too small, stop movement
+        if (Math.abs(player.vy) < 1) player.vy = 0;
+    }
+    // Prevent going above the top
+    if (player.y - player.size / 2 < 0) {
+        player.y = player.size / 2;
+        player.vy = 0;
+    }
+
     // Move boxes
     boxes.forEach(box => {
         box.x -= BOX_SPEED;
@@ -208,6 +222,11 @@ function update() {
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Draw ground
+    ctx.save();
+    ctx.fillStyle = '#8d6e63';
+    ctx.fillRect(0, canvas.height - GROUND_HEIGHT, canvas.width, GROUND_HEIGHT);
+    ctx.restore();
     drawPlayer();
     drawBoxes();
     drawScore();
