@@ -1,5 +1,6 @@
 // Word Flyer Game
 import { correctSignals } from './correctSignals.js';
+import { incorrectSignals } from '../SignalSlayer/incorrectSignals.js';
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -20,8 +21,7 @@ const BOX_SPEED = 1.5; // Slower for more reaction time
 const WORD_FONT = '20px Segoe UI';
 
 // Word lists
-const incorrectWords = ['car', 'table', 'shoe', 'cloud', 'river', 'chair', 'book', 'phone'];
-
+// Remove incorrectWords
 let player, boxes, score, gameActive, currentCorrectWord, health;
 // Remove correctWords, add line selection
 let selectedLine = null;
@@ -62,13 +62,15 @@ function spawnBoxes() {
     const correctPos = Math.floor(Math.random() * 3);
     const words = [];
     let usedIncorrect = [];
+    // Use incorrectSignals for the selected line
+    const incorrectArr = incorrectSignals[selectedLine] || [];
     for (let i = 0; i < 3; i++) {
         if (i === correctPos) {
             words.push(currentCorrectWord);
         } else {
             let word;
             do {
-                word = pickRandom(incorrectWords);
+                word = pickRandom(incorrectArr);
             } while (usedIncorrect.includes(word) || word === currentCorrectWord);
             usedIncorrect.push(word);
             words.push(word);
