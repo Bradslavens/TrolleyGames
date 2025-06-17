@@ -13,6 +13,17 @@
             <img id="schema-image" src="pages/testSchema.png" alt="Schema">
         </div>
     </div>
+    <button id="logoutBtn" style="position:absolute;top:16px;right:16px;">Log Out</button>
     <script src="game.js"></script>
+    <script>
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) {
+        logoutBtn.onclick = function() {
+          localStorage.removeItem('tg_logged_in');
+          localStorage.removeItem('tg_username');
+          location.reload();
+        };
+      }
+    </script>
 </body>
 </html>

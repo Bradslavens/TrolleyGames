@@ -20,6 +20,7 @@
             <button id="restartBtn">Restart</button>
         </div>
     </div>
+    <button id="logoutBtn" style="position:absolute;top:16px;right:16px;">Log Out</button>
     <script type="module">
       import { correctSignals } from './correctSignals.js';
       // Populate line selection
@@ -38,5 +39,15 @@
       window.setSelectedLine(select.value);
     </script>
     <script src="game.js" type="module"></script>
+    <script>
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) {
+        logoutBtn.onclick = function() {
+          localStorage.removeItem('tg_logged_in');
+          localStorage.removeItem('tg_username');
+          location.reload();
+        };
+      }
+    </script>
 </body>
 </html>

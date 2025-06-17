@@ -13,6 +13,7 @@
       Test your memory and match the signals! Select a line, enter the correct signal codes, and see how many you can get right. Tip: Just start guessing. If you guess wrong, the correct answer will be displayed. See your score at the end of the game. Click "Start" to begin the game.
     </p>
     <button class="start-button" id="startButton">Start</button>
+    <button id="logoutBtn" style="position:absolute;top:16px;right:16px;">Log Out</button>
   </div>
 
   <script>
@@ -20,6 +21,15 @@
     document.getElementById('startButton').addEventListener('click', () => {
       window.location.href = 'game.html';
     });
+
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+      logoutBtn.onclick = function() {
+        localStorage.removeItem('tg_logged_in');
+        localStorage.removeItem('tg_username');
+        location.reload();
+      };
+    }
   </script>
 </body>
 </html>

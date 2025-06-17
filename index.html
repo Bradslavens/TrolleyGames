@@ -18,6 +18,7 @@
   </div>
   <div id="main-content" class="container" style="display:none;">
     <h1>TrolleyGames</h1>
+    <button id="logoutBtn" style="position:absolute;top:16px;right:16px;">Log Out</button>
     <div class="level-select">
       <label for="lineSelect">Select Line:</label>
       <select id="lineSelect"></select>
@@ -40,6 +41,11 @@
       if (!line) return alert('Please select a line.');
       await TG_Level.setProgress(line, 0); // Always start at level 0 for new line
       window.location.href = TG_Level.levelOrder[0].url + '?line=' + encodeURIComponent(line);
+    };
+    document.getElementById('logoutBtn').onclick = function() {
+      localStorage.removeItem('tg_logged_in');
+      localStorage.removeItem('tg_username');
+      location.reload();
     };
   </script>
 </body>
