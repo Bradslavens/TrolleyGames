@@ -1,6 +1,7 @@
 // Word Flyer Game
 import { correctSignals } from './correctSignals.js';
 import { incorrectSignals } from '../SignalSlayer/incorrectSignals.js';
+import '../levelProgress.js';
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -250,6 +251,25 @@ function endGame(msg) {
     gameActive = false;
     gameOverMsg.textContent = msg + ' Final Score: ' + score;
     gameOverScreen.style.display = 'flex';
+    // If completed all signals, advance to next level
+    if (msg.startsWith('Congratulations!')) {
+        const line = selectedLine;
+        // Advance to next level
+        TG_Level.getProgress(line).then(progress => {
+            let nextLevel = 1;
+            if (progress && typeof progress.levelIdx === 'number') {
+                nextLevel = progress.levelIdx + 1;
+            }
+            TG_Level.setProgress(line, nextLevel).then(() => {
+                // Redirect to next level if exists
+                if (TG_Level.levelOrder[nextLevel]) {
+                    setTimeout(() => {
+                        window.location.href = TG_Level.levelOrder[nextLevel].url + '?line=' + encodeURIComponent(line);
+                    }, 2000);
+                }
+            });
+        });
+    }
 }
 
 // Event listeners
@@ -282,6 +302,15 @@ window.setSelectedLine = function(line) {
     signalIndex = 0;
     resetGame();
 }
+
+// Get line from URL parameter
+function getLineFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('line');
+}
+
+// On load, set selectedLine from URL
+selectedLine = getLineFromURL() || selectedLine;
 
 // Show start screen on load
 startScreen.style.display = 'flex';

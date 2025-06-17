@@ -5,6 +5,7 @@
   <title>TrolleyGames Landing Page</title>
   <link rel="stylesheet" href="styles.css">
   <script defer src="login.js"></script>
+  <script src="levelProgress.js"></script>
 </head>
 <body>
   <div id="login-screen" class="login-screen">
@@ -17,32 +18,29 @@
   </div>
   <div id="main-content" class="container" style="display:none;">
     <h1>TrolleyGames</h1>
-    <div class="game-links">
-      <a class="game-link" href="RememberBee/index.html">
-        <span class="button-img-wrapper">
-          <img src="images/HPButtonsY.png" alt="Signal Match">
-          <span class="button-text">Signal Match</span>
-        </span>
-      </a>
-      <a class="game-link" href="SignalSlayer/index.html">
-        <span class="button-img-wrapper">
-          <img src="images/HPButtonsG.png" alt="Signal Slayer">
-          <span class="button-text">Signal Slayer</span>
-        </span>
-      </a>
-      <a class="game-link" href="SchemaPro/game.html">
-        <span class="button-img-wrapper">
-          <img src="images/HPButtonsR.png" alt="Schema Pro">
-          <span class="button-text">Schema Pro</span>
-        </span>
-      </a>
-      <a class="game-link" href="HoppyTrain/index.html">
-        <span class="button-img-wrapper">
-          <img src="images/HPButtonsB.png" alt="Hoppy Train">
-          <span class="button-text">Hoppy Train</span>
-        </span>
-      </a>
+    <div class="level-select">
+      <label for="lineSelect">Select Line:</label>
+      <select id="lineSelect"></select>
+      <button id="startLevelBtn">Start</button>
     </div>
+    <div id="level-status" style="margin-top:24px;"></div>
   </div>
+  <script>
+    // Populate line select
+    const lineSelect = document.getElementById('lineSelect');
+    TG_Level.lines.forEach(line => {
+      const opt = document.createElement('option');
+      opt.value = line;
+      opt.textContent = line;
+      lineSelect.appendChild(opt);
+    });
+    // Start button logic
+    document.getElementById('startLevelBtn').onclick = async function() {
+      const line = lineSelect.value;
+      if (!line) return alert('Please select a line.');
+      await TG_Level.setProgress(line, 0); // Always start at level 0 for new line
+      window.location.href = TG_Level.levelOrder[0].url + '?line=' + encodeURIComponent(line);
+    };
+  </script>
 </body>
 </html>

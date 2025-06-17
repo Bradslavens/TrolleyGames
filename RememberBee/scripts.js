@@ -1,33 +1,44 @@
-import signals from './signals.js'; // Import the signals object
+import signals from './signals.js';
+import '../levelProgress.js';
 
-// Populate the line selection dropdown
-const lineSelect = document.getElementById('lineSelect');
-Object.keys(signals).forEach(line => {
-  const option = document.createElement('option');
-  option.value = line;
-  option.textContent = line;
-  lineSelect.appendChild(option);
-});
+function getLineFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('line');
+}
 
-// Variables to track the current state
-let currentLine = null;
+let currentLine = getLineFromURL();
 let currentSignalIndex = 0;
 let userInput = "";
-let score = 0; // Track the user's score
+let score = 0;
 
-// Add an event listener to handle line selection
-lineSelect.addEventListener('change', () => {
-  currentLine = lineSelect.value;
-  currentSignalIndex = 0; // Reset to the first signal
-  userInput = ""; // Clear user input
-  score = 0; // Reset the score
-  updateProgressBar(); // Reset progress bar
-  // Remove the line selection element after selection
-  const lineSelectionContainer = document.querySelector('.line-selection-container');
-  if (lineSelectionContainer) {
-    lineSelectionContainer.remove();
-  }
-});
+// Hide line selection if line is set
+const lineSelect = document.getElementById('lineSelect');
+if (currentLine) {
+  const container = document.querySelector('.line-selection-container');
+  if (container) container.style.display = 'none';
+} else {
+  // Populate the line selection dropdown
+  Object.keys(signals).forEach(line => {
+    const option = document.createElement('option');
+    option.value = line;
+    option.textContent = line;
+    lineSelect.appendChild(option);
+  });
+
+  // Add an event listener to handle line selection
+  lineSelect.addEventListener('change', () => {
+    currentLine = lineSelect.value;
+    currentSignalIndex = 0; // Reset to the first signal
+    userInput = ""; // Clear user input
+    score = 0; // Reset the score
+    updateProgressBar(); // Reset progress bar
+    // Remove the line selection element after selection
+    const lineSelectionContainer = document.querySelector('.line-selection-container');
+    if (lineSelectionContainer) {
+      lineSelectionContainer.remove();
+    }
+  });
+}
 
 // Add event listeners to keypad buttons
 const keypadButtons = document.querySelectorAll('.keypad-button');
@@ -70,13 +81,10 @@ if (submitButton) {
         if (currentSignalIndex >= signalList.length) {
           console.log("You've completed all signals! You won!");
           alert(`Congratulations! You completed all signals for ${currentLine} with a score of ${score}. Select another line to play again.`);
-          currentSignalIndex = 0; // Restart from the beginning
-          userInput = ""; // Clear user input
-          score = 0; // Reset the score
-          updateProgressBar(); // Reset progress bar
+          onGameComplete();
+          userInput = "";
+          updateUserEntryDisplay();
         }
-        userInput = "";
-        updateUserEntryDisplay();
       } else {
         console.log("Incorrect! Showing the correct answer.");
         showOverlay(currentSignal); // Show the overlay with the correct answer
@@ -146,4 +154,21 @@ function updateProgressBar() {
   const percent = Math.round((current / total) * 100);
   progressBar.style.width = percent + '%';
   progressLabel.textContent = `${current} / ${total}`;
+}
+
+// On game complete, advance to next level
+function onGameComplete() {
+  TG_Level.getProgress(currentLine).then(progress => {
+    let nextLevel = 2;
+    if (progress && typeof progress.levelIdx === 'number') {
+      nextLevel = progress.levelIdx + 1;
+    }
+    TG_Level.setProgress(currentLine, nextLevel).then(() => {
+      if (TG_Level.levelOrder[nextLevel]) {
+        setTimeout(() => {
+          window.location.href = TG_Level.levelOrder[nextLevel].url + '?line=' + encodeURIComponent(currentLine);
+        }, 2000);
+      }
+    });
+  });
 }

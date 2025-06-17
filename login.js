@@ -6,12 +6,8 @@ document.addEventListener('DOMContentLoaded', function() {
   const loginScreen = document.getElementById('login-screen');
   const mainContent = document.getElementById('main-content');
 
-  // If already logged in, skip login
-  if (localStorage.getItem('tg_logged_in') === 'true') {
-    loginScreen.style.display = 'none';
-    mainContent.style.display = '';
-    return;
-  }
+  // Always require login on refresh
+  localStorage.removeItem('tg_logged_in');
 
   loginForm.addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -27,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         const data = await res.json();
         if (data.success) {
-          localStorage.setItem('tg_logged_in', 'true');
+          localStorage.setItem('tg_username', username);
           loginScreen.style.display = 'none';
           mainContent.style.display = '';
         } else {

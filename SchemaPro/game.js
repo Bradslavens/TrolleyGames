@@ -1,3 +1,5 @@
+import '../levelProgress.js';
+
 const pages = [
     {
         image: "pages/page1.png",
@@ -27,6 +29,13 @@ let currentSignalIndex = 0;
 const signalNameElement = document.getElementById("signal-name");
 const imageContainer = document.getElementById("image-container");
 const schemaImage = document.getElementById("schema-image");
+
+function getLineFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('line');
+}
+
+const selectedLine = getLineFromURL();
 
 function displayNextSignal() {
     const currentPage = pages[currentPageIndex];
@@ -96,7 +105,24 @@ imageContainer.addEventListener("click", (event) => {
                 displayNextPage();
             } else {
                 signalNameElement.textContent = "Game Over!";
+                onGameComplete();
             }
         }
     }
 });
+
+function onGameComplete() {
+  if (!selectedLine) return;
+  TG_Level.getProgress(selectedLine).then(progress => {
+    let nextLevel = 3;
+    if (progress && typeof progress.levelIdx === 'number') {
+      nextLevel = progress.levelIdx + 1;
+    }
+    TG_Level.setProgress(selectedLine, nextLevel).then(() => {
+      // No next level, show completion message or redirect to home
+      setTimeout(() => {
+        window.location.href = '/index.html';
+      }, 2000);
+    });
+  });
+}

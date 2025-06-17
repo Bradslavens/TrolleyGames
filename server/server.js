@@ -34,6 +34,18 @@ const addLineColumn = () => {
 };
 addLineColumn();
 
+// Add progress table if not exists
+const addProgressTable = () => {
+  db.run(`CREATE TABLE IF NOT EXISTS progress (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT,
+    line TEXT,
+    levelIdx INTEGER,
+    UNIQUE(username, line)
+  )`);
+};
+addProgressTable();
+
 // Register endpoint
 app.post('/api/register', (req, res) => {
   const { username, password } = req.body;
@@ -106,6 +118,30 @@ app.get('/api/get-line', (req, res) => {
   db.get('SELECT line FROM users WHERE username = ?', [username], (err, row) => {
     if (err) return res.status(500).json({ error: 'DB error' });
     res.json({ line: row ? row.line : null });
+  });
+});
+
+// Set progress endpoint
+app.post('/api/set-progress', (req, res) => {
+  const { username, line, levelIdx } = req.body;
+  if (!username || !line || typeof levelIdx !== 'number') return res.status(400).json({ error: 'Missing fields' });
+  db.run(
+    `INSERT INTO progress (username, line, levelIdx) VALUES (?, ?, ?)
+     ON CONFLICT(username, line) DO UPDATE SET levelIdx=excluded.levelIdx`,
+    [username, line, levelIdx],
+    function(err) {
+      if (err) return res.status(500).json({ error: 'DB error' });
+      res.json({ success: true });
+    }
+  );
+});
+// Get progress endpoint
+app.get('/api/get-progress', (req, res) => {
+  const { username, line } = req.query;
+  if (!username || !line) return res.status(400).json({ error: 'Missing fields' });
+  db.get('SELECT levelIdx FROM progress WHERE username = ? AND line = ?', [username, line], (err, row) => {
+    if (err) return res.status(500).json({ error: 'DB error' });
+    res.json({ levelIdx: row ? row.levelIdx : 0 });
   });
 });
 
