@@ -103,7 +103,7 @@ function drawPlayer() {
 function drawBoxes() {
     boxes.forEach(box => {
         ctx.save();
-        ctx.fillStyle = box.isCorrect ? '#4caf50' : '#e53935';
+        ctx.fillStyle = '#4caf50'; // Use the same color for all boxes
         ctx.fillRect(box.x, box.y, box.width, box.height);
         ctx.strokeStyle = '#222';
         ctx.lineWidth = 2;
