@@ -22,6 +22,18 @@ const db = new sqlite3.Database('./users.db', (err) => {
   )`);
 });
 
+// Add line column to users table if not exists
+const addLineColumn = () => {
+  db.get("PRAGMA table_info(users)", (err, columns) => {
+    if (err) return;
+    const hasLine = Array.isArray(columns) && columns.some(col => col.name === 'line');
+    if (!hasLine) {
+      db.run('ALTER TABLE users ADD COLUMN line TEXT', () => {});
+    }
+  });
+};
+addLineColumn();
+
 // Register endpoint
 app.post('/api/register', (req, res) => {
   const { username, password } = req.body;
@@ -76,6 +88,24 @@ app.post('/api/login-or-create', (req, res) => {
         });
       });
     }
+  });
+});
+
+// Endpoint to set/get user line
+app.post('/api/set-line', (req, res) => {
+  const { username, line } = req.body;
+  if (!username || !line) return res.status(400).json({ error: 'Missing fields' });
+  db.run('UPDATE users SET line = ? WHERE username = ?', [line, username], function(err) {
+    if (err) return res.status(500).json({ error: 'DB error' });
+    res.json({ success: true });
+  });
+});
+app.get('/api/get-line', (req, res) => {
+  const { username } = req.query;
+  if (!username) return res.status(400).json({ error: 'Missing username' });
+  db.get('SELECT line FROM users WHERE username = ?', [username], (err, row) => {
+    if (err) return res.status(500).json({ error: 'DB error' });
+    res.json({ line: row ? row.line : null });
   });
 });
 

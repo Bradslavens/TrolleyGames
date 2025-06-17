@@ -1,4 +1,6 @@
 // Word Flyer Game
+import { correctSignals } from './correctSignals.js';
+
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const startScreen = document.getElementById('startScreen');
@@ -18,10 +20,11 @@ const BOX_SPEED = 1.5; // Slower for more reaction time
 const WORD_FONT = '20px Segoe UI';
 
 // Word lists
-const correctWords = ['apple', 'banana', 'grape', 'orange', 'lemon'];
 const incorrectWords = ['car', 'table', 'shoe', 'cloud', 'river', 'chair', 'book', 'phone'];
 
 let player, boxes, score, gameActive, currentCorrectWord, health;
+// Remove correctWords, add line selection
+let selectedLine = null;
 
 // Set canvas to landscape and responsive
 const GAME_WIDTH = 700;
@@ -40,8 +43,13 @@ function resetGame() {
     health = 3;
     gameActive = true;
     boxes = [];
+    // Use selectedLine for currentCorrectWord
+    if (!selectedLine) {
+        // Default to first line if not selected
+        selectedLine = Object.keys(correctSignals)[0];
+    }
+    currentCorrectWord = pickRandom(correctSignals[selectedLine]);
     spawnBoxes();
-    currentCorrectWord = pickRandom(correctWords);
 }
 
 function pickRandom(arr) {
@@ -160,7 +168,7 @@ function update() {
             if (box.isCorrect) {
                 // Passed through correct box
                 score++;
-                currentCorrectWord = pickRandom(correctWords);
+                currentCorrectWord = pickRandom(correctSignals[selectedLine]);
                 spawnBoxes();
                 passed = true;
             } else {
@@ -240,6 +248,14 @@ window.addEventListener('keydown', e => {
 });
 canvas.addEventListener('mousedown', flap);
 canvas.addEventListener('touchstart', flap);
+
+// Add logic to set selectedLine from UI
+window.setSelectedLine = function(line) {
+    selectedLine = line;
+    // Optionally, store in DB via API
+    // Reset game with new line
+    resetGame();
+}
 
 // Show start screen on load
 startScreen.style.display = 'flex';

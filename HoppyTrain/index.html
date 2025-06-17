@@ -11,6 +11,8 @@
         <canvas id="gameCanvas" width="400" height="600"></canvas>
         <div id="startScreen">
             <h1>Hoppy Train</h1>
+            <label for="lineSelect">Select Line:</label>
+            <select id="lineSelect"></select>
             <button id="startBtn">Start Game</button>
         </div>
         <div id="gameOverScreen" style="display:none;">
@@ -18,6 +20,23 @@
             <button id="restartBtn">Restart</button>
         </div>
     </div>
-    <script src="game.js"></script>
+    <script type="module">
+      import { correctSignals } from './correctSignals.js';
+      // Populate line selection
+      const select = document.getElementById('lineSelect');
+      Object.keys(correctSignals).forEach(line => {
+        const opt = document.createElement('option');
+        opt.value = line;
+        opt.textContent = line;
+        select.appendChild(opt);
+      });
+      select.addEventListener('change', e => {
+        window.setSelectedLine(e.target.value);
+        // Optionally, send to backend to store in DB
+      });
+      // Set default
+      window.setSelectedLine(select.value);
+    </script>
+    <script src="game.js" type="module"></script>
 </body>
 </html>
