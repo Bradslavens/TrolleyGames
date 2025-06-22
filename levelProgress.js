@@ -14,6 +14,7 @@ const lines = [
 
 const levelOrder = [
   { name: "HoppyTrain", url: "HoppyTrain/index.html" },
+  { name: "SignalSlayer", url: "SignalSlayer/index.html" },
   { name: "RememberBee", url: "RememberBee/index.html" },
   { name: "SchemaPro", url: "SchemaPro/index.html" }
 ];

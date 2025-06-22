@@ -28,6 +28,7 @@ let selectedLine = null;
 let signalRows = [];
 let playerTrack = 1; // 0=left, 1=center, 2=right
 let gameOver = false;
+let gameWon = false;
 let score = 0;
 let currentCorrectIndex = 0;
 let currentLineSignals = [];
@@ -77,6 +78,26 @@ function showLineSelector() {
   });
 }
 
+// Get line from URL parameter
+function getLineFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('line');
+}
+
+// Auto-select line from URL if provided
+const lineFromURL = getLineFromURL();
+if (lineFromURL && correctSignals[lineFromURL]) {
+  selectedLine = lineFromURL;
+  currentLineSignals = correctSignals[selectedLine];
+  currentCorrectIndex = 0;
+  resetGame();
+  // Hide the selector since line is already chosen
+  const selector = document.getElementById('line-selector');
+  if (selector) {
+    selector.style.display = 'none';
+  }
+}
+
 // Generate a random signal row
 function randomSignalRow() {
   if (!selectedLine) return { signals: [], y: -window.SIGNAL_HEIGHT };
@@ -114,6 +135,7 @@ function resetGame() {
   signalRows = [randomSignalRow()];
   playerTrack = 1;
   gameOver = false;
+  gameWon = false;
   score = 0;
 }
 
@@ -211,14 +233,24 @@ function drawGameOver() {
   ctx.textBaseline = 'middle';
   const centerX = canvas.width / (window.devicePixelRatio || 1) / 2;
   const centerY = canvas.height / (window.devicePixelRatio || 1) / 2;
-  ctx.fillText('Game Over!', centerX, centerY - gameOverFont);
-  // Responsive font size for restart message
-  const restartFont = Math.max(18, Math.min(36, Math.floor(canvas.height * 0.04)));
-  ctx.font = restartFont + 'px sans-serif';
-  if (isMobile) {
-    ctx.fillText('Tap to Restart', centerX, centerY + restartFont);
+  
+  if (gameWon) {
+    ctx.fillStyle = '#4caf50'; // Green for success
+    ctx.fillText('Congratulations!', centerX, centerY - gameOverFont);
+    ctx.fillStyle = '#fff';
+    const restartFont = Math.max(18, Math.min(36, Math.floor(canvas.height * 0.04)));
+    ctx.font = restartFont + 'px sans-serif';
+    ctx.fillText('Advancing to next level...', centerX, centerY + restartFont);
   } else {
-    ctx.fillText('Press Spacebar to Restart', centerX, centerY + restartFont);
+    ctx.fillText('Game Over!', centerX, centerY - gameOverFont);
+    // Responsive font size for restart message
+    const restartFont = Math.max(18, Math.min(36, Math.floor(canvas.height * 0.04)));
+    ctx.font = restartFont + 'px sans-serif';
+    if (isMobile) {
+      ctx.fillText('Tap to Restart', centerX, centerY + restartFont);
+    } else {
+      ctx.fillText('Press Spacebar to Restart', centerX, centerY + restartFont);
+    }
   }
   ctx.restore();
 }
@@ -260,6 +292,25 @@ function update() {
             signalRows.push(randomSignalRow());
           } else {
             gameOver = true; // End game when all signals are used
+            gameWon = true; // Mark as won
+            // Advance to next level
+            if (window.TG_Level) {
+              const line = selectedLine;
+              TG_Level.getProgress(line).then(progress => {
+                let nextLevel = 1;
+                if (progress && typeof progress.levelIdx === 'number') {
+                  nextLevel = progress.levelIdx + 1;
+                }
+                TG_Level.setProgress(line, nextLevel).then(() => {
+                  // Auto-redirect to next level after 3 seconds
+                  if (TG_Level.levelOrder[nextLevel]) {
+                    setTimeout(() => {
+                      window.location.href = '../' + TG_Level.levelOrder[nextLevel].url + '?line=' + encodeURIComponent(line);
+                    }, 3000);
+                  }
+                });
+              });
+            }
           }
         } else {
           gameOver = true;
@@ -341,7 +392,7 @@ function gameLoop() {
 
 // Controls
 window.addEventListener('keydown', e => {
-  if (gameOver && (e.code === 'Enter' || e.code === 'NumpadEnter' || e.code === 'Space')) {
+  if (gameOver && !gameWon && (e.code === 'Enter' || e.code === 'NumpadEnter' || e.code === 'Space')) {
     resetGame();
     return;
   }
@@ -359,7 +410,7 @@ canvas.addEventListener('mousedown', handleMouseDown, false);
 let touchStartX = null;
 
 function handleTouchStart(e) {
-  if (gameOver) {
+  if (gameOver && !gameWon) {
     resetGame();
     return;
   }
@@ -383,7 +434,7 @@ function handleTouchEnd(e) {
 }
 
 function handleMouseDown(e) {
-  if (gameOver) {
+  if (gameOver && !gameWon) {
     resetGame();
     return;
   }
@@ -497,7 +548,7 @@ gameLoop();
 // --- Tap-to-move logic for mobile ---
 canvas.addEventListener('click', function(e) {
   if (!isMobile) return;
-  if (gameOver) {
+  if (gameOver && !gameWon) {
     resetGame();
     return;
   }
