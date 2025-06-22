@@ -1,4 +1,4 @@
-import signals from '../../RememberBee/signals.js';
+import signals from '../data/signals.js';
 
 const RememberBee = {
   start(line, user, { onWin, onLose }) {

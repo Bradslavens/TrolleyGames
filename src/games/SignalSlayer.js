@@ -1,5 +1,5 @@
-import { correctSignals, correctSignalsTest, USE_TEST_SIGNALS } from '../../HoppyTrain/correctSignals.js';
-import { incorrectSignals } from './incorrectSignals.js';
+import { correctSignals, correctSignalsTest, USE_TEST_SIGNALS } from '../data/correctSignals.js';
+import { incorrectSignals } from '../data/incorrectSignals.js';
 
 const SignalSlayer = {
   start(line, user, { onWin, onLose }) {

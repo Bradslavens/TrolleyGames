@@ -1,2 +1,43 @@
 body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; margin: 0; }
 #app { max-width: 900px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 32px; }
+.menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+  justify-content: center;
+  margin-top: 32px;
+}
+.line-block {
+  background: #f0f4f8;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px #0001;
+  padding: 20px 16px 16px 16px;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.line-block strong {
+  font-size: 1.1em;
+  margin-bottom: 12px;
+  color: #1976d2;
+}
+.line-block button {
+  margin: 4px 0;
+  padding: 8px 18px;
+  border: none;
+  border-radius: 6px;
+  background: #1976d2;
+  color: #fff;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.line-block button:disabled {
+  background: #b0bec5;
+  color: #eee;
+  cursor: not-allowed;
+}
+.line-block button:not(:disabled):hover {
+  background: #1565c0;
+}
