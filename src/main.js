@@ -22,7 +22,10 @@ function loadLevel(levelIdx, line, user) {
       setProgress(user, line, levelIdx + 1);
       loadLevel(levelIdx + 1, line, user);
     },
-    onLose: () => showOverlay('Try again!')
+    onLose: () => {
+      showOverlay('Try again!');
+      loadLevel(levelIdx, line, user); // Restart the current level after alert
+    }
   });
 }
 
