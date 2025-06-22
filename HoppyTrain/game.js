@@ -187,7 +187,9 @@ function update() {
 
     // Track columns that have already had a collision
     if (!window.columnCollided) window.columnCollided = {};
+    if (!window.columnCollisionCount) window.columnCollisionCount = {};
     let columnCollided = window.columnCollided;
+    let columnCollisionCount = window.columnCollisionCount;
 
     // Check for collision with boxes
     let correctBoxHit = false;
@@ -195,12 +197,24 @@ function update() {
         const box = boxes[i];
         if (
             box.visible &&
-            !columnCollided[box.columnId] &&
             player.x + player.size / 2 > box.x &&
             player.x - player.size / 2 < box.x + box.width &&
             player.y + player.size / 2 > box.y &&
             player.y - player.size / 2 < box.y + box.height
         ) {
+            // Initialize collision count for this column if it doesn't exist
+            if (columnCollisionCount[box.columnId] === undefined) {
+                columnCollisionCount[box.columnId] = 0;
+            }
+            
+            // Only process the first collision for this column
+            if (columnCollisionCount[box.columnId] > 0) {
+                // Already collided in this column, ignore
+                break;
+            }
+            
+            // Mark this column as having been collided with
+            columnCollisionCount[box.columnId] = 1;
             columnCollided[box.columnId] = true;
             if (box.isCorrect) {
                 // Make correct box invisible
@@ -240,8 +254,9 @@ function update() {
         if (colBoxes.every(box => box.x + box.width < 0)) {
             // Remove all boxes in this column
             boxes = boxes.filter(box => box.columnId !== colId);
-            // Remove column from collision tracking
+            // Remove column from collision tracking and counter
             delete columnCollided[colId];
+            delete columnCollisionCount[colId];
         }
     }
 }
