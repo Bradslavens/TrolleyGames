@@ -1,10 +1,12 @@
 import signals from '../data/signals.js';
+import { injectNavButtons } from '../shared.js';
 
 const RememberBee = {
   start(line, user, { onWin, onLose }) {
     // Set up UI
     const app = document.getElementById('app');
     app.innerHTML = '';
+    injectNavButtons(() => window.location.reload());
     // Main container
     const container = document.createElement('div');
     container.className = 'rememberbee-container';

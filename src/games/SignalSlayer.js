@@ -1,11 +1,12 @@
 import { correctSignals, correctSignalsTest, USE_TEST_SIGNALS } from '../data/correctSignals.js';
 import { incorrectSignals } from '../data/incorrectSignals.js';
+import { injectNavButtons } from '../shared.js';
 
 const SignalSlayer = {
   start(line, user, { onWin, onLose }) {
-    // Set up canvas
     const app = document.getElementById('app');
     app.innerHTML = '';
+    injectNavButtons(() => window.location.reload());
     const canvas = document.createElement('canvas');
     canvas.width = 700;
     canvas.height = 400;

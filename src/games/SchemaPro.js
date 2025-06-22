@@ -1,3 +1,5 @@
+import { injectNavButtons } from '../shared.js';
+
 const pages = [
   {
     image: "pages/page1.png",
@@ -25,6 +27,7 @@ const SchemaPro = {
   start(line, user, { onWin, onLose }) {
     const app = document.getElementById('app');
     app.innerHTML = '';
+    injectNavButtons(() => window.location.reload());
     let currentPageIndex = 0;
     let currentSignalIndex = 0;
     // UI
