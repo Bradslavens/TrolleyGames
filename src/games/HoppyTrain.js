@@ -26,6 +26,15 @@ const HoppyTrain = {
     // Signals
     const activeCorrectSignals = USE_TEST_SIGNALS ? correctSignalsTest : correctSignals;
     let selectedLine = line;
+    // Safety: check for missing/empty data
+    if (!activeCorrectSignals[selectedLine] || !Array.isArray(activeCorrectSignals[selectedLine]) || activeCorrectSignals[selectedLine].length === 0) {
+      app.innerHTML = '<div style="color:red;text-align:center;margin-top:40px;">No correct signals found for this line.<br>Please check your data.</div>';
+      return;
+    }
+    if (!incorrectSignals[selectedLine] || !Array.isArray(incorrectSignals[selectedLine]) || incorrectSignals[selectedLine].length === 0) {
+      app.innerHTML = '<div style="color:red;text-align:center;margin-top:40px;">No incorrect signals found for this line.<br>Please check your data.</div>';
+      return;
+    }
     let signalIndex = 0;
     let currentCorrectWord = activeCorrectSignals[selectedLine][signalIndex];
 
