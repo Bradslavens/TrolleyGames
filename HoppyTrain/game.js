@@ -228,9 +228,7 @@ function update() {
                     return;
                 }
                 currentCorrectWord = correctSignals[selectedLine][signalIndex];
-                addNextCorrectBox(box.columnId);
                 correctBoxHit = true;
-                break;
             } else {
                 // Incorrect box: lose a heart, keep box visible, flash box red
                 box.flashRed = 15; // number of frames to flash red
@@ -239,9 +237,10 @@ function update() {
                     endGame('Game Over!');
                     return;
                 }
-                // Only lose one heart per collision
-                break;
             }
+            // Always add a new column after any collision (correct or incorrect)
+            addNextCorrectBox(box.columnId);
+            break;
         }
     }
 
