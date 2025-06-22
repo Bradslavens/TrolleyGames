@@ -343,22 +343,24 @@ function flap() {
 
 function endGame(msg) {
     gameActive = false;
-    gameOverMsg.textContent = msg + ' Final Score: ' + score;
-    gameOverScreen.style.display = 'flex';
-    // If completed all signals, advance to next level
+    // If completed all signals, advance to next level (no overlay)
     if (msg.startsWith('Congratulations!')) {
         const line = selectedLine;
         // HoppyTrain is level 0, so advance to level 1 (RememberBee)
         const currentLevel = 0; // HoppyTrain
         const nextLevel = currentLevel + 1; // RememberBee
-        
         TG_Level.setProgress(line, nextLevel).then(() => {
-            // Redirect to RememberBee
             setTimeout(() => {
                 window.location.href = '../RememberBee/index.html?line=' + encodeURIComponent(line);
             }, 2000);
         });
+        // Do NOT show overlay or enable restart
+        return;
     }
+    // For game over, show overlay and allow restart
+    gameOverMsg.textContent = msg + ' Final Score: ' + score;
+    gameOverScreen.style.display = 'flex';
+    restartBtn.disabled = false;
 }
 
 // Event listeners
