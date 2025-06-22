@@ -199,6 +199,16 @@ function update() {
                 addNextCorrectBox(box.columnId);
                 correctBoxHit = true;
                 break;
+            } else {
+                // Incorrect box: lose a heart and make box invisible
+                box.visible = false;
+                health--;
+                if (health <= 0) {
+                    endGame('Game Over!');
+                    return;
+                }
+                // Only lose one heart per collision
+                break;
             }
         }
     }
