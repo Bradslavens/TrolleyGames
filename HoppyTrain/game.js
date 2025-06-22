@@ -348,20 +348,15 @@ function endGame(msg) {
     // If completed all signals, advance to next level
     if (msg.startsWith('Congratulations!')) {
         const line = selectedLine;
-        // Advance to next level
-        TG_Level.getProgress(line).then(progress => {
-            let nextLevel = 1;
-            if (progress && typeof progress.levelIdx === 'number') {
-                nextLevel = progress.levelIdx + 1;
-            }
-            TG_Level.setProgress(line, nextLevel).then(() => {
-                // Redirect to next level if exists
-                if (TG_Level.levelOrder[nextLevel]) {
-                    setTimeout(() => {
-                        window.location.href = TG_Level.levelOrder[nextLevel].url + '?line=' + encodeURIComponent(line);
-                    }, 2000);
-                }
-            });
+        // HoppyTrain is level 0, so advance to level 1 (RememberBee)
+        const currentLevel = 0; // HoppyTrain
+        const nextLevel = currentLevel + 1; // RememberBee
+        
+        TG_Level.setProgress(line, nextLevel).then(() => {
+            // Redirect to RememberBee
+            setTimeout(() => {
+                window.location.href = '../RememberBee/index.html?line=' + encodeURIComponent(line);
+            }, 2000);
         });
     }
 }
