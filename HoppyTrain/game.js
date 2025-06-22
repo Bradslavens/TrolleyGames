@@ -346,15 +346,20 @@ function endGame(msg) {
     // If completed all signals, advance to next level (no overlay)
     if (msg.startsWith('Congratulations!')) {
         const line = selectedLine;
-        // HoppyTrain is level 0, so advance to level 1 (RememberBee)
         const currentLevel = 0; // HoppyTrain
         const nextLevel = currentLevel + 1; // RememberBee
-        TG_Level.setProgress(line, nextLevel).then(() => {
-            setTimeout(() => {
-                window.location.href = '../RememberBee/index.html?line=' + encodeURIComponent(line);
-            }, 2000);
-        });
-        // Do NOT show overlay or enable restart
+        console.log('[HoppyTrain] Attempting to set progress:', { line, nextLevel });
+        TG_Level.setProgress(line, nextLevel)
+            .then(() => {
+                console.log('[HoppyTrain] Progress set successfully for', line, 'to', nextLevel);
+                setTimeout(() => {
+                    window.location.href = '../RememberBee/index.html?line=' + encodeURIComponent(line);
+                }, 2000);
+            })
+            .catch(err => {
+                console.error('[HoppyTrain] Error setting progress:', err);
+                alert('Error saving progress. Please check your connection or contact support.');
+            });
         return;
     }
     // For game over, show overlay and allow restart
