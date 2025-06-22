@@ -17,7 +17,7 @@ window.TRAIN_HEIGHT = window.TRAIN_WIDTH;
 window.TRAIN_Y = canvas.height - window.TRAIN_HEIGHT - 30;
 
 // Import signal arrays from separate files
-import { correctSignals } from './correctSignals.js';
+import { correctSignals } from '../HoppyTrain/correctSignals.js';
 import { incorrectSignals } from './incorrectSignals.js';
 
 // Device detection
