@@ -86,7 +86,9 @@ function spawnBoxes() {
         width: BOX_WIDTH,
         height: boxHeight,
         word,
-        isCorrect: word === currentCorrectWord
+        isCorrect: word === currentCorrectWord,
+        visible: true, // Track visibility for correct box
+        columnId: Date.now() + '-' + Math.random() // Unique id for this column
     }));
 }
 
@@ -104,8 +106,9 @@ function drawPlayer() {
 
 function drawBoxes() {
     boxes.forEach(box => {
+        if (!box.visible) return;
         ctx.save();
-        ctx.fillStyle = '#4caf50'; // Use the same color for all boxes
+        ctx.fillStyle = '#4caf50';
         ctx.fillRect(box.x, box.y, box.width, box.height);
         ctx.strokeStyle = '#222';
         ctx.lineWidth = 2;
@@ -159,11 +162,9 @@ function update() {
     // Bounce off the ground
     if (player.y + player.size / 2 > canvas.height - GROUND_HEIGHT) {
         player.y = canvas.height - GROUND_HEIGHT - player.size / 2;
-        player.vy = -player.vy * 0.6; // Lose some energy on bounce
-        // If bounce is too small, stop movement
+        player.vy = -player.vy * 0.6;
         if (Math.abs(player.vy) < 1) player.vy = 0;
     }
-    // Prevent going above the top
     if (player.y - player.size / 2 < 0) {
         player.y = player.size / 2;
         player.vy = 0;
@@ -175,16 +176,19 @@ function update() {
     });
 
     // Check for collision with boxes
-    let passed = false;
-    boxes.forEach(box => {
+    let correctBoxHit = false;
+    for (let i = 0; i < boxes.length; i++) {
+        const box = boxes[i];
         if (
+            box.visible &&
             player.x + player.size / 2 > box.x &&
             player.x - player.size / 2 < box.x + box.width &&
             player.y + player.size / 2 > box.y &&
             player.y - player.size / 2 < box.y + box.height
         ) {
             if (box.isCorrect) {
-                // Passed through correct box
+                // Make correct box invisible
+                box.visible = false;
                 score++;
                 signalIndex++;
                 if (signalIndex >= correctSignals[selectedLine].length) {
@@ -192,33 +196,66 @@ function update() {
                     return;
                 }
                 currentCorrectWord = correctSignals[selectedLine][signalIndex];
-                spawnBoxes();
-                passed = true;
-            } else {
-                // Hit wrong box
-                health--;
-                if (health <= 0) {
-                    endGame('Game Over! Out of hearts.');
-                } else {
-                    // Briefly flash or respawn boxes
-                    spawnBoxes();
-                }
-                passed = true;
+                addNextCorrectBox(box.columnId);
+                correctBoxHit = true;
+                break;
             }
-        }
-    });
-
-    // If boxes go off screen, respawn
-    if (!passed && boxes[0].x + BOX_WIDTH < 0) {
-        health--;
-        if (health <= 0) {
-            endGame('Game Over! Out of hearts.');
-        } else {
-            spawnBoxes();
         }
     }
 
-    // Remove out-of-bounds death (player can touch top/bottom)
+    // Remove columns that are off screen
+    const columns = {};
+    boxes.forEach(box => {
+        if (!columns[box.columnId]) columns[box.columnId] = [];
+        columns[box.columnId].push(box);
+    });
+    for (const colId in columns) {
+        const colBoxes = columns[colId];
+        if (colBoxes.every(box => box.x + box.width < 0)) {
+            // Remove all boxes in this column
+            boxes = boxes.filter(box => box.columnId !== colId);
+        }
+    }
+}
+
+function addNextCorrectBox(columnId) {
+    // Add a new correct box at a random position, keep other boxes
+    const correctPos = Math.floor(Math.random() * 3);
+    const boxHeight = canvas.height / 3;
+    let usedIncorrect = [];
+    const incorrectArr = incorrectSignals[selectedLine] || [];
+    let newBoxes = [];
+    for (let i = 0; i < 3; i++) {
+        if (i === correctPos) {
+            newBoxes.push({
+                x: canvas.width,
+                y: i * boxHeight,
+                width: BOX_WIDTH,
+                height: boxHeight,
+                word: currentCorrectWord,
+                isCorrect: true,
+                visible: true,
+                columnId: Date.now() + '-' + Math.random()
+            });
+        } else {
+            let word;
+            do {
+                word = pickRandom(incorrectArr);
+            } while (usedIncorrect.includes(word) || word === currentCorrectWord);
+            usedIncorrect.push(word);
+            newBoxes.push({
+                x: canvas.width,
+                y: i * boxHeight,
+                width: BOX_WIDTH,
+                height: boxHeight,
+                word,
+                isCorrect: false,
+                visible: true,
+                columnId: Date.now() + '-' + Math.random()
+            });
+        }
+    }
+    boxes = boxes.concat(newBoxes);
 }
 
 function draw() {
