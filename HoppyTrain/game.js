@@ -175,17 +175,23 @@ function update() {
         box.x -= BOX_SPEED;
     });
 
+    // Track columns that have already had a collision
+    if (!window.columnCollided) window.columnCollided = {};
+    let columnCollided = window.columnCollided;
+
     // Check for collision with boxes
     let correctBoxHit = false;
     for (let i = 0; i < boxes.length; i++) {
         const box = boxes[i];
         if (
             box.visible &&
+            !columnCollided[box.columnId] &&
             player.x + player.size / 2 > box.x &&
             player.x - player.size / 2 < box.x + box.width &&
             player.y + player.size / 2 > box.y &&
             player.y - player.size / 2 < box.y + box.height
         ) {
+            columnCollided[box.columnId] = true;
             if (box.isCorrect) {
                 // Make correct box invisible
                 box.visible = false;
@@ -224,6 +230,8 @@ function update() {
         if (colBoxes.every(box => box.x + box.width < 0)) {
             // Remove all boxes in this column
             boxes = boxes.filter(box => box.columnId !== colId);
+            // Remove column from collision tracking
+            delete columnCollided[colId];
         }
     }
 }
