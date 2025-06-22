@@ -20,10 +20,12 @@
     </div>
     <button id="logoutBtn" style="position:absolute;top:16px;right:16px;">Log Out</button>
     <script type="module">
-      import { correctSignals } from './correctSignals.js';
+      import { correctSignals, correctSignalsTest, USE_TEST_SIGNALS } from './correctSignals.js';
+      // Use test or production signals based on configuration
+      const activeCorrectSignals = USE_TEST_SIGNALS ? correctSignalsTest : correctSignals;
       // Populate line selection
       const select = document.getElementById('lineSelect');
-      Object.keys(correctSignals).forEach(line => {
+      Object.keys(activeCorrectSignals).forEach(line => {
         const opt = document.createElement('option');
         opt.value = line;
         opt.textContent = line;

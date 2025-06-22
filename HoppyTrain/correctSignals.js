@@ -1,3 +1,18 @@
+/*
+ * TESTING vs PRODUCTION MODE:
+ * 
+ * To enable TESTING mode (3 signals per line for fast testing):
+ * - Set USE_TEST_SIGNALS = true
+ * 
+ * To enable PRODUCTION mode (full signal arrays):
+ * - Set USE_TEST_SIGNALS = false
+ * 
+ * This affects all games that use correctSignals (HoppyTrain, SignalSlayer, etc.)
+ */
+
+// Configuration: Set to true for testing (3 signals per line), false for production (full signals)
+export const USE_TEST_SIGNALS = true; // Change to false for production
+
 export const correctSignals = {
   "Blue Line North East": [
     "O2RA", "O2LB", "O046", "O089", "O086", "O123", "O6RA", "O6LB", "O162", "O193", "O192",
@@ -55,5 +70,33 @@ export const correctSignals = {
     "M8RB", "M8LA", "M771", "M813", "M841", "M10R", "M10LA", "M10LB", "M16L", "M16R",
     "M18LA", "M18R", "M18LB", "M22L", "M22RB", "M1001", "M26LA", "M26RB", "M1127",
     "M1183", "M30LA", "M30RB", "M1257", "M1315", "M34LA", "M34RB", "M1445", "M38RB"
+  ]
+};
+
+// Testing version with only first 3 signals per line for faster testing
+export const correctSignalsTest = {
+  "Blue Line North East": [
+    "O2RA", "O2LB", "O046"
+  ],
+  "Blue Line North West": [
+    "O2RB", "O2LA", "O048"
+  ],
+  "Blue Line South East": [
+    "S154", "S16RA", "S16LB"
+  ],
+  "Blue Line South West": [
+    "S16RB", "S16LA", "S285"
+  ],
+  "Orange Line East": [
+    "E358", "E466", "E6RA"
+  ],
+  "Orange Line West": [
+    "E439", "E509", "E6RB"
+  ],
+  "Green Line East": [
+    "M2LB", "M404", "M434"
+  ],
+  "Green Line West": [
+    "M2LA", "M415", "M4RB"
   ]
 };

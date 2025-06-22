@@ -17,8 +17,11 @@ window.TRAIN_HEIGHT = window.TRAIN_WIDTH;
 window.TRAIN_Y = canvas.height - window.TRAIN_HEIGHT - 30;
 
 // Import signal arrays from separate files
-import { correctSignals } from '../HoppyTrain/correctSignals.js';
+import { correctSignals, correctSignalsTest, USE_TEST_SIGNALS } from '../HoppyTrain/correctSignals.js';
 import { incorrectSignals } from './incorrectSignals.js';
+
+// Use test or production signals based on configuration
+const activeCorrectSignals = USE_TEST_SIGNALS ? correctSignalsTest : correctSignals;
 
 // Device detection
 const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -62,7 +65,7 @@ function showLineSelector() {
   defaultOption.disabled = true;
   defaultOption.selected = true;
   selector.appendChild(defaultOption);
-  Object.keys(correctSignals).forEach(line => {
+  Object.keys(activeCorrectSignals).forEach(line => {
     let opt = document.createElement('option');
     opt.value = line;
     opt.text = line;
@@ -71,7 +74,7 @@ function showLineSelector() {
   document.body.appendChild(selector);
   selector.addEventListener('change', e => {
     selectedLine = selector.value;
-    currentLineSignals = correctSignals[selectedLine];
+    currentLineSignals = activeCorrectSignals[selectedLine];
     currentCorrectIndex = 0;
     resetGame();
     selector.style.display = 'none';
@@ -86,9 +89,9 @@ function getLineFromURL() {
 
 // Auto-select line from URL if provided
 const lineFromURL = getLineFromURL();
-if (lineFromURL && correctSignals[lineFromURL]) {
+if (lineFromURL && activeCorrectSignals[lineFromURL]) {
   selectedLine = lineFromURL;
-  currentLineSignals = correctSignals[selectedLine];
+  currentLineSignals = activeCorrectSignals[selectedLine];
   currentCorrectIndex = 0;
   resetGame();
   // Hide the selector since line is already chosen

@@ -1,7 +1,10 @@
 // Word Flyer Game
-import { correctSignals } from './correctSignals.js';
+import { correctSignals, correctSignalsTest, USE_TEST_SIGNALS } from './correctSignals.js';
 import { incorrectSignals } from '../SignalSlayer/incorrectSignals.js';
 import '../levelProgress.js';
+
+// Use test or production signals based on configuration
+const activeCorrectSignals = USE_TEST_SIGNALS ? correctSignalsTest : correctSignals;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -48,10 +51,10 @@ function resetGame() {
     boxes = [];
     // Use selectedLine for currentCorrectWord
     if (!selectedLine) {
-        selectedLine = Object.keys(correctSignals)[0];
+        selectedLine = Object.keys(activeCorrectSignals)[0];
     }
     signalIndex = 0;
-    currentCorrectWord = correctSignals[selectedLine][signalIndex];
+    currentCorrectWord = activeCorrectSignals[selectedLine][signalIndex];
     spawnBoxes();
 }
 
@@ -223,11 +226,11 @@ function update() {
                 box.visible = false;
                 score++;
                 signalIndex++;
-                if (signalIndex >= correctSignals[selectedLine].length) {
+                if (signalIndex >= activeCorrectSignals[selectedLine].length) {
                     endGame('Congratulations! You completed all signals.');
                     return;
                 }
-                currentCorrectWord = correctSignals[selectedLine][signalIndex];
+                currentCorrectWord = activeCorrectSignals[selectedLine][signalIndex];
                 correctBoxHit = true;
             } else {
                 // Incorrect box: lose a heart, keep box visible, flash box red
