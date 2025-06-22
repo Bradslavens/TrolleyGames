@@ -108,9 +108,9 @@ function drawBoxes() {
     boxes.forEach(box => {
         if (!box.visible) return;
         ctx.save();
-        if (box.flashRed && box.flashRed > 0) {
+        if (box.flashRed === undefined) box.flashRed = 0;
+        if (box.flashRed > 0 || box.permanentRed) {
             ctx.fillStyle = '#e53935'; // red
-            box.flashRed--;
         } else {
             ctx.fillStyle = '#4caf50'; // green
         }
@@ -124,6 +124,11 @@ function drawBoxes() {
         ctx.textBaseline = 'middle';
         ctx.fillText(box.word, box.x + box.width / 2, box.y + box.height / 2);
         ctx.restore();
+        // If box was flashing red, make it permanently red after the first flash
+        if (box.flashRed > 0) {
+            box.flashRed--;
+            if (box.flashRed === 0) box.permanentRed = true;
+        }
     });
 }
 
