@@ -78,6 +78,8 @@ function spawnBoxes() {
             words.push(word);
         }
     }
+    // Create one shared columnId for all boxes in this column
+    const sharedColumnId = Date.now() + '-' + Math.random();
     // Make boxes touch top and bottom, no gap
     const boxHeight = canvas.height / 3;
     boxes = words.map((word, i) => ({
@@ -88,7 +90,7 @@ function spawnBoxes() {
         word,
         isCorrect: word === currentCorrectWord,
         visible: true, // Track visibility for correct box
-        columnId: Date.now() + '-' + Math.random() // Unique id for this column
+        columnId: sharedColumnId // Same id for all boxes in this column
     }));
 }
 
@@ -267,6 +269,8 @@ function addNextCorrectBox(columnId) {
     const boxHeight = canvas.height / 3;
     let usedIncorrect = [];
     const incorrectArr = incorrectSignals[selectedLine] || [];
+    // Create one shared columnId for all boxes in this new column
+    const sharedColumnId = Date.now() + '-' + Math.random();
     let newBoxes = [];
     for (let i = 0; i < 3; i++) {
         if (i === correctPos) {
@@ -278,7 +282,7 @@ function addNextCorrectBox(columnId) {
                 word: currentCorrectWord,
                 isCorrect: true,
                 visible: true,
-                columnId: Date.now() + '-' + Math.random()
+                columnId: sharedColumnId
             });
         } else {
             let word;
@@ -294,7 +298,7 @@ function addNextCorrectBox(columnId) {
                 word,
                 isCorrect: false,
                 visible: true,
-                columnId: Date.now() + '-' + Math.random()
+                columnId: sharedColumnId
             });
         }
     }
