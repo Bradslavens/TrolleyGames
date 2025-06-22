@@ -108,7 +108,12 @@ function drawBoxes() {
     boxes.forEach(box => {
         if (!box.visible) return;
         ctx.save();
-        ctx.fillStyle = '#4caf50';
+        if (box.flashRed && box.flashRed > 0) {
+            ctx.fillStyle = '#e53935'; // red
+            box.flashRed--;
+        } else {
+            ctx.fillStyle = '#4caf50'; // green
+        }
         ctx.fillRect(box.x, box.y, box.width, box.height);
         ctx.strokeStyle = '#222';
         ctx.lineWidth = 2;
@@ -206,8 +211,8 @@ function update() {
                 correctBoxHit = true;
                 break;
             } else {
-                // Incorrect box: lose a heart and make box invisible
-                box.visible = false;
+                // Incorrect box: lose a heart, keep box visible, flash box red
+                box.flashRed = 15; // number of frames to flash red
                 health--;
                 if (health <= 0) {
                     endGame('Game Over!');
@@ -278,6 +283,14 @@ function addNextCorrectBox(columnId) {
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Flash background red if needed
+    if (window.flashRed && window.flashRed > 0) {
+        ctx.save();
+        ctx.fillStyle = 'rgba(255,0,0,0.3)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.restore();
+        window.flashRed--;
+    }
     // Draw ground
     ctx.save();
     ctx.fillStyle = '#8d6e63';
