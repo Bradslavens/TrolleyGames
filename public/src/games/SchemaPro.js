@@ -32,7 +32,7 @@ async function loadPages() {
   while (true) {
     try {
       // Try to load Page_1.jpg, Page_2.png, etc. (capitalized)
-      const extensions = ['jpg', 'jpeg', 'png'];
+      const extensions = ['jpg', 'jpeg', 'png', 'JPG', 'JPEG', 'PNG'];
       let pageFound = false;
       
       for (const ext of extensions) {
@@ -48,6 +48,25 @@ async function loadPages() {
           });
           pageFound = true;
           break;
+        }
+      }
+      
+      // Also try lowercase naming convention (page_1.png, etc.) for backward compatibility
+      if (!pageFound) {
+        for (const ext of extensions) {
+          const imagePath = `assets/schemapro/pages/page_${pageNumber}.${ext}`;
+          
+          // Check if image exists by trying to load it
+          const imageExists = await checkImageExists(imagePath);
+          if (imageExists) {
+            pages.push({
+              image: imagePath,
+              pageNumber: pageNumber,
+              signals: [] // Will be loaded from database
+            });
+            pageFound = true;
+            break;
+          }
         }
       }
       
