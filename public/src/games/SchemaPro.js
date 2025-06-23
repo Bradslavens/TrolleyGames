@@ -1,33 +1,68 @@
 import { injectNavButtons } from '../shared.js';
 
-const pages = [
-  {
-    image: "pages/page1.png",
-    signals: [
-      { name: "Signal 1", x: 91, y: 310 },
-      { name: "Signal 2", x: 124, y: 312 },
-      { name: "Signal 3", x: 138, y: 312 },
-      { name: "Signal 4", x: 177, y: 313 },
-      { name: "Signal 5", x: 192, y: 311 }
-    ]
-  },
-  {
-    image: "pages/page2.png",
-    signals: [
-      { name: "Signal 6", x: 91, y: 268 },
-      { name: "Signal 7", x: 124, y: 268 },
-      { name: "Signal 8", x: 143, y: 267 },
-      { name: "Signal 9", x: 179, y: 267 },
-      { name: "Signal 10", x: 193, y: 266 }
-    ]
+// Function to load pages dynamically from the pages folder
+async function loadPages() {
+  const pages = [];
+  let pageNumber = 1;
+  
+  while (true) {
+    try {
+      // Try to load page_1.jpg, page_1.png, etc.
+      const extensions = ['jpg', 'jpeg', 'png'];
+      let pageFound = false;
+      
+      for (const ext of extensions) {
+        const imagePath = `assets/schemapro/pages/page_${pageNumber}.${ext}`;
+        
+        // Check if image exists by trying to load it
+        const imageExists = await checkImageExists(imagePath);
+        if (imageExists) {
+          pages.push({
+            image: imagePath,
+            signals: [] // Signals will be loaded from database or configured separately
+          });
+          pageFound = true;
+          break;
+        }
+      }
+      
+      if (!pageFound) {
+        break; // No more pages found
+      }
+      
+      pageNumber++;
+    } catch (error) {
+      break;
+    }
   }
-];
+  
+  return pages;
+}
+
+// Helper function to check if an image exists
+function checkImageExists(imagePath) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(true);
+    img.onerror = () => resolve(false);
+    img.src = imagePath;
+  });
+}
 
 const SchemaPro = {
-  start(line, user, { onWin, onLose }) {
+  async start(line, user, { onWin, onLose }) {
     const app = document.getElementById('app');
     app.innerHTML = '';
     injectNavButtons(() => window.location.reload());
+    
+    // Load pages dynamically
+    const pages = await loadPages();
+    
+    if (pages.length === 0) {
+      app.innerHTML = '<div style="text-align: center; padding: 50px;"><h2>No schema pages found!</h2><p>Please add page files (page_1.jpg, page_2.png, etc.) to the assets/schemapro/pages/ folder.</p></div>';
+      return;
+    }
+    
     let currentPageIndex = 0;
     let currentSignalIndex = 0;
     // UI
@@ -48,6 +83,18 @@ const SchemaPro = {
     // Logic
     function displayNextSignal() {
       const currentPage = pages[currentPageIndex];
+      
+      // If no signals defined for this page, create placeholder signals
+      if (currentPage.signals.length === 0) {
+        // Add some default signals for demonstration
+        // In the future, these could be loaded from the database
+        currentPage.signals = [
+          { name: `Page ${currentPageIndex + 1} Signal 1`, x: 100, y: 300 },
+          { name: `Page ${currentPageIndex + 1} Signal 2`, x: 150, y: 300 },
+          { name: `Page ${currentPageIndex + 1} Signal 3`, x: 200, y: 300 }
+        ];
+      }
+      
       const currentSignal = currentPage.signals[currentSignalIndex];
       signalNameElement.textContent = currentSignal.name;
     }
