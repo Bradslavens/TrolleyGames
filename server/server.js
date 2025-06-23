@@ -9,24 +9,46 @@ const bodyParser = require('body-parser');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// CORS configuration to allow requests only from your frontend
+// CORS configuration to allow requests from various environments
 const allowedOrigins = [
   'http://localhost:5500', // For local static site development
-  'https://trolleygames-2.onrender.com', // Your Render static site (remove trailing slash for consistency)
   'http://localhost:8080', // For local development
-  'http://127.0.0.1:8080' // For local development
+  'http://127.0.0.1:8080', // For local development
+  'https://trolleygames-2.onrender.com', // Your Render static site
+  /^https:\/\/.*\.onrender\.com$/, // Any Render subdomain
+  /^https:\/\/.*\.netlify\.app$/, // Netlify deployments
+  /^https:\/\/.*\.vercel\.app$/, // Vercel deployments
+  /^https:\/\/.*\.github\.io$/, // GitHub Pages
 ];
 
 const corsOptions = {
   origin: (origin, callback) => {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
+    
+    // Check exact matches
+    if (allowedOrigins.some(allowed => {
+      if (typeof allowed === 'string') {
+        return allowed === origin;
+      } else if (allowed instanceof RegExp) {
+        return allowed.test(origin);
+      }
+      return false;
+    })) {
+      return callback(null, true);
     }
-    return callback(null, true);
-  }
+    
+    // For development, allow localhost on any port
+    if (process.env.NODE_ENV !== 'production' && origin.includes('localhost')) {
+      return callback(null, true);
+    }
+    
+    const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
+    console.warn(msg);
+    return callback(new Error(msg), false);
+  },
+  credentials: true,
+  optionsSuccessStatus: 200 // Some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 
 app.use(cors(corsOptions));
@@ -211,8 +233,20 @@ app.get('/api/signals', (req, res) => {
   query += ' ORDER BY line, page, number';
   
   db.all(query, params, (err, rows) => {
-    if (err) return res.status(500).json({ error: 'DB error' });
-    res.json({ signals: rows || [] });
+    if (err) {
+      console.error('Database error in /api/signals:', err);
+      return res.status(500).json({ 
+        error: 'Database error occurred', 
+        message: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error',
+        signals: [] 
+      });
+    }
+    
+    res.json({ 
+      signals: rows || [],
+      count: rows ? rows.length : 0,
+      filters: { line, page }
+    });
   });
 });
 

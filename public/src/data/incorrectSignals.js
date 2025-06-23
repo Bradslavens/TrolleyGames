@@ -1,5 +1,6 @@
 // incorrectSignals.js
 export const incorrectSignals = {
+  "A Yard": ["999", "888", "777", "666", "555"],
   "Blue Line North East": ["999", "888", "777", "666", "555"],
   "Blue Line North West": ["998", "887", "776", "665", "554"],
   "Blue Line South East": ["111", "222", "333", "444", "555"],

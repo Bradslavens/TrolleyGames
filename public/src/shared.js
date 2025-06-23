@@ -1,10 +1,15 @@
 import { getProgress } from './api.js';
 
-export function showMenu(progress, onSelectLevel) {
+export function showMenu(progress, onSelectLevel, onSelectSchemaPro) {
   const app = document.getElementById('app');
-  app.innerHTML = `<h1>TrolleyGames</h1><p>Select your line and level to begin.</p>`;
+  app.innerHTML = `
+    <h1>TrolleyGames</h1>
+    <p>Select your line and level to begin, or play SchemaPro standalone.</p>
+  `;
+  
   // Example: lines and levels
   const lines = [
+    "A Yard",
     "Blue Line North East",
     "Blue Line North West",
     "Blue Line South East",
@@ -14,7 +19,77 @@ export function showMenu(progress, onSelectLevel) {
     "Green Line East",
     "Green Line West"
   ];
-  const levels = ["HoppyTrain", "RememberBee", "SchemaPro", "SignalSlayer"];
+  const levels = ["HoppyTrain", "RememberBee", "SignalSlayer"]; // Removed SchemaPro from progression
+  
+  // Create main container
+  const container = document.createElement('div');
+  container.style.display = 'flex';
+  container.style.flexDirection = 'column';
+  container.style.gap = '30px';
+  
+  // SchemaPro standalone section
+  const schemaProSection = document.createElement('div');
+  schemaProSection.style.cssText = `
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+    border-radius: 12px;
+    color: white;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  `;
+  
+  const schemaProTitle = document.createElement('h2');
+  schemaProTitle.textContent = '🎯 SchemaPro - Signal Finding Game';
+  schemaProTitle.style.margin = '0 0 15px 0';
+  schemaProSection.appendChild(schemaProTitle);
+  
+  const schemaProDesc = document.createElement('p');
+  schemaProDesc.textContent = 'Find signals on schema diagrams using the database-driven signal locations. Features hearts system, scoring, and multiple pages!';
+  schemaProDesc.style.margin = '0 0 20px 0';
+  schemaProDesc.style.opacity = '0.9';
+  schemaProSection.appendChild(schemaProDesc);
+  
+  const schemaProButtons = document.createElement('div');
+  schemaProButtons.style.display = 'flex';
+  schemaProButtons.style.gap = '10px';
+  schemaProButtons.style.flexWrap = 'wrap';
+  schemaProButtons.style.justifyContent = 'center';
+  
+  lines.forEach(line => {
+    const btn = document.createElement('button');
+    btn.textContent = line;
+    btn.style.cssText = `
+      background: rgba(255,255,255,0.2);
+      border: 2px solid rgba(255,255,255,0.3);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    `;
+    btn.onmouseover = () => {
+      btn.style.background = 'rgba(255,255,255,0.3)';
+      btn.style.borderColor = 'rgba(255,255,255,0.5)';
+    };
+    btn.onmouseout = () => {
+      btn.style.background = 'rgba(255,255,255,0.2)';
+      btn.style.borderColor = 'rgba(255,255,255,0.3)';
+    };
+    btn.onclick = () => onSelectSchemaPro(line);
+    schemaProButtons.appendChild(btn);
+  });
+  
+  schemaProSection.appendChild(schemaProButtons);
+  container.appendChild(schemaProSection);
+  
+  // Regular levels section
+  const levelsSection = document.createElement('div');
+  const levelsTitle = document.createElement('h2');
+  levelsTitle.textContent = '🎮 Progressive Game Levels';
+  levelsTitle.style.margin = '0 0 15px 0';
+  levelsSection.appendChild(levelsTitle);
+  
   const menu = document.createElement('div');
   menu.className = 'menu';
   lines.forEach(line => {
@@ -30,7 +105,10 @@ export function showMenu(progress, onSelectLevel) {
     });
     menu.appendChild(lineDiv);
   });
-  app.appendChild(menu);
+  
+  levelsSection.appendChild(menu);
+  container.appendChild(levelsSection);
+  app.appendChild(container);
 }
 
 export function showOverlay(msg) {

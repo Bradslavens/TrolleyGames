@@ -13,6 +13,7 @@ export async function login() {
 export async function getProgress(user) {
   // Fetch progress for all lines from server
   const lines = [
+    "A Yard",
     "Blue Line North East",
     "Blue Line North West",
     "Blue Line South East",

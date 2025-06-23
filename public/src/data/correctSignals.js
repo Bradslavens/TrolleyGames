@@ -1,6 +1,7 @@
 // correctSignals.js
 export const USE_TEST_SIGNALS = false;
 export const correctSignals = {
+  "A Yard": ["1/25", "1/20"],
   "Blue Line North East": ["2", "046", "089", "086", "123"],
   "Blue Line North West": ["2", "048", "087", "088", "121"],
   "Blue Line South East": ["154", "16", "226", "287", "296"],
@@ -11,6 +12,7 @@ export const correctSignals = {
   "Green Line West": ["2", "406", "436", "4", "506"]
 };
 export const correctSignalsTest = {
+  "A Yard": ["1/25", "1/20"],
   "Blue Line North East": ["2", "046", "089"],
   "Blue Line North West": ["2", "048", "087"],
   "Blue Line South East": ["154", "16", "226"],
