@@ -4,7 +4,7 @@ import { injectNavButtons } from '../shared.js';
 async function loadSignalsForPage(pageNumber, line) {
   try {
     const baseURL = window.location.hostname === 'localhost' ? 'http://localhost:3001' : 'https://trolleygames-server.onrender.com';
-    const response = await fetch(`${baseURL}/api/signals?line=${encodeURIComponent(line)}&page=page_${pageNumber}`);
+    const response = await fetch(`${baseURL}/api/signals?line=${encodeURIComponent(line)}&page=${pageNumber}`);
     const data = await response.json();
     
     if (response.ok && data.signals) {
