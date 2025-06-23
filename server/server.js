@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3001;
 
 // CORS configuration to allow requests only from your frontend
 const allowedOrigins = [
-  'https://trolleygames-1.onrender.com/', // TODO: Replace with your static site's URL
+  'https://trolleygames-2.onrender.com/', // TODO: Replace with your static site's URL
   'http://localhost:8080', // For local development
   'http://127.0.0.1:8080' // For local development
 ];
