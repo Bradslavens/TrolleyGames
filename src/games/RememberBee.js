@@ -1,6 +1,8 @@
 import signals from '../data/signals.js';
 import { injectNavButtons } from '../shared.js';
 
+const MAX_HEALTH = 3;
+
 const RememberBee = {
   start(line, user, { onWin, onLose }) {
     // Set up UI
@@ -10,6 +12,12 @@ const RememberBee = {
     // Main container
     const container = document.createElement('div');
     container.className = 'rememberbee-container';
+    // Health display
+    const healthDisplay = document.createElement('div');
+    healthDisplay.id = 'healthDisplay';
+    healthDisplay.style.fontSize = '2rem';
+    healthDisplay.style.marginBottom = '10px';
+    container.appendChild(healthDisplay);
     // User entry display
     const userEntryDisplay = document.createElement('p');
     userEntryDisplay.id = 'userEntryDisplay';
@@ -38,6 +46,7 @@ const RememberBee = {
     let currentSignalIndex = 0;
     let userInput = '';
     let score = 0;
+    let health = MAX_HEALTH;
     const signalList = signals[line].signalList;
 
     function updateUserEntryDisplay() {
@@ -48,6 +57,9 @@ const RememberBee = {
       const current = Math.min(currentSignalIndex, total);
       progressBar.style.width = Math.round((current / total) * 100) + '%';
       progressBar.textContent = `${current} / ${total}`;
+    }
+    function updateHealthDisplay() {
+      healthDisplay.innerHTML = '❤'.repeat(health) + '<span style="color:#ccc">' + '❤'.repeat(MAX_HEALTH - health) + '</span>';
     }
     function handleKey(key) {
       if (key === 'Clear') {
@@ -66,13 +78,22 @@ const RememberBee = {
           userInput = '';
           updateUserEntryDisplay();
         } else {
-          // Show correct answer, reset
-          alert(`Incorrect! The correct answer was: ${currentSignal}`);
-          currentSignalIndex = 0;
-          score = 0;
-          updateProgressBar();
-          userInput = '';
-          updateUserEntryDisplay();
+          health--;
+          updateHealthDisplay();
+          if (health > 0) {
+            alert(`Incorrect! The correct answer was: ${currentSignal}\nYou have ${health} heart${health === 1 ? '' : 's'} left.`);
+            userInput = '';
+            updateUserEntryDisplay();
+          } else {
+            alert(`Incorrect! The correct answer was: ${currentSignal}\nNo hearts left. Restarting level.`);
+            currentSignalIndex = 0;
+            score = 0;
+            health = MAX_HEALTH;
+            updateProgressBar();
+            updateHealthDisplay();
+            userInput = '';
+            updateUserEntryDisplay();
+          }
         }
       } else {
         userInput += key;
@@ -101,6 +122,7 @@ const RememberBee = {
     // Init
     updateUserEntryDisplay();
     updateProgressBar();
+    updateHealthDisplay();
   }
 };
 // Cleanup utility for navigation
