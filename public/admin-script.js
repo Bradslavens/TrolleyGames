@@ -6,6 +6,8 @@ class SignalAdmin {
         this.filteredSignals = [];
         this.currentPage = 1;
         this.pageSize = 20;
+        this.sortField = null;
+        this.sortDirection = 'asc';
         this.init();
     }
 
@@ -37,6 +39,9 @@ class SignalAdmin {
         // Pagination
         document.getElementById('prevPage').addEventListener('click', () => this.changePage(-1));
         document.getElementById('nextPage').addEventListener('click', () => this.changePage(1));
+        
+        // Sorting
+        this.setupSortingListeners();
         
         // Close modal when clicking outside
         window.addEventListener('click', (e) => {
@@ -153,18 +158,29 @@ class SignalAdmin {
             return matchesLine && matchesPage;
         });
         
-        this.currentPage = 1;
-        this.renderTable();
-        this.updatePagination();
+        // Re-apply current sorting
+        if (this.sortField) {
+            this.sortBy(this.sortField);
+        } else {
+            this.currentPage = 1;
+            this.renderTable();
+            this.updatePagination();
+        }
     }
 
     clearFilters() {
         document.getElementById('lineFilter').value = '';
         document.getElementById('pageFilter').value = '';
         this.filteredSignals = [...this.signals];
-        this.currentPage = 1;
-        this.renderTable();
-        this.updatePagination();
+        
+        // Re-apply current sorting
+        if (this.sortField) {
+            this.sortBy(this.sortField);
+        } else {
+            this.currentPage = 1;
+            this.renderTable();
+            this.updatePagination();
+        }
     }
 
     openAddModal() {
@@ -379,6 +395,84 @@ class SignalAdmin {
             }
         } catch (error) {
             this.showError('Network error: ' + error.message);
+        }
+    }
+
+    setupSortingListeners() {
+        const sortableHeaders = document.querySelectorAll('.sortable');
+        sortableHeaders.forEach(header => {
+            header.addEventListener('click', () => {
+                const field = header.dataset.field;
+                this.sortBy(field);
+            });
+        });
+    }
+
+    sortBy(field) {
+        // If clicking the same field, toggle direction
+        if (this.sortField === field) {
+            this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            this.sortField = field;
+            this.sortDirection = 'asc';
+        }
+
+        // Update visual indicators
+        this.updateSortIndicators();
+
+        // Sort the filtered signals
+        this.filteredSignals.sort((a, b) => {
+            let aVal = a[field];
+            let bVal = b[field];
+
+            // Handle different data types
+            if (field === 'id' || field === 'hitbox_x' || field === 'hitbox_y' || 
+                field === 'hitbox_width' || field === 'hitbox_height') {
+                aVal = parseInt(aVal) || 0;
+                bVal = parseInt(bVal) || 0;
+            } else if (field === 'correct') {
+                aVal = aVal ? 1 : 0;
+                bVal = bVal ? 1 : 0;
+            } else if (field === 'number') {
+                // Sort numbers numerically if they're numeric, otherwise alphabetically
+                const aNum = parseInt(aVal);
+                const bNum = parseInt(bVal);
+                if (!isNaN(aNum) && !isNaN(bNum)) {
+                    aVal = aNum;
+                    bVal = bNum;
+                } else {
+                    aVal = (aVal || '').toString().toLowerCase();
+                    bVal = (bVal || '').toString().toLowerCase();
+                }
+            } else {
+                // String comparison (case-insensitive)
+                aVal = (aVal || '').toString().toLowerCase();
+                bVal = (bVal || '').toString().toLowerCase();
+            }
+
+            if (aVal < bVal) return this.sortDirection === 'asc' ? -1 : 1;
+            if (aVal > bVal) return this.sortDirection === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+        // Reset to first page and refresh table
+        this.currentPage = 1;
+        this.renderTable();
+        this.updatePagination();
+    }
+
+    updateSortIndicators() {
+        // Remove all existing sort indicators
+        document.querySelectorAll('.sortable').forEach(header => {
+            header.classList.remove('sort-asc', 'sort-desc');
+        });
+
+        // Add indicator to current sort field
+        if (this.sortField) {
+            const currentHeader = document.querySelector(`[data-field="${this.sortField}"]`);
+            if (currentHeader) {
+                currentHeader.classList.add(`sort-${this.sortDirection}`);
+            }
         }
     }
 }
