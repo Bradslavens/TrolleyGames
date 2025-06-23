@@ -1,5 +1,29 @@
 import { injectNavButtons } from '../shared.js';
 
+// Function to load signals from database for a specific page
+async function loadSignalsForPage(pageNumber, line) {
+  try {
+    const baseURL = window.location.hostname === 'localhost' ? 'http://localhost:3001' : 'https://trolleygames-server.onrender.com';
+    const response = await fetch(`${baseURL}/api/signals?line=${encodeURIComponent(line)}&page=page_${pageNumber}`);
+    const data = await response.json();
+    
+    if (response.ok && data.signals) {
+      return data.signals.map(signal => ({
+        name: (signal.prefix || '') + signal.number + (signal.suffix || ''),
+        x: signal.hitbox_x,
+        y: signal.hitbox_y,
+        width: signal.hitbox_width,
+        height: signal.hitbox_height,
+        correct: signal.correct
+      }));
+    }
+    return [];
+  } catch (error) {
+    console.error('Failed to load signals for page:', error);
+    return [];
+  }
+}
+
 // Function to load pages dynamically from the pages folder
 async function loadPages() {
   const pages = [];
@@ -7,19 +31,20 @@ async function loadPages() {
   
   while (true) {
     try {
-      // Try to load page_1.jpg, page_1.png, etc.
+      // Try to load Page_1.jpg, Page_2.png, etc. (capitalized)
       const extensions = ['jpg', 'jpeg', 'png'];
       let pageFound = false;
       
       for (const ext of extensions) {
-        const imagePath = `assets/schemapro/pages/page_${pageNumber}.${ext}`;
+        const imagePath = `assets/schemapro/pages/Page_${pageNumber}.${ext}`;
         
         // Check if image exists by trying to load it
         const imageExists = await checkImageExists(imagePath);
         if (imageExists) {
           pages.push({
             image: imagePath,
-            signals: [] // Signals will be loaded from database or configured separately
+            pageNumber: pageNumber,
+            signals: [] // Will be loaded from database
           });
           pageFound = true;
           break;
@@ -59,7 +84,7 @@ const SchemaPro = {
     const pages = await loadPages();
     
     if (pages.length === 0) {
-      app.innerHTML = '<div style="text-align: center; padding: 50px;"><h2>No schema pages found!</h2><p>Please add page files (page_1.jpg, page_2.png, etc.) to the assets/schemapro/pages/ folder.</p></div>';
+      app.innerHTML = '<div style="text-align: center; padding: 50px;"><h2>No schema pages found!</h2><p>Please add page files (Page_1.jpg, Page_2.png, etc.) to the assets/schemapro/pages/ folder.</p></div>';
       return;
     }
     
@@ -81,28 +106,46 @@ const SchemaPro = {
     container.appendChild(imageContainer);
     app.appendChild(container);
     // Logic
-    function displayNextSignal() {
+    async function displayNextSignal() {
       const currentPage = pages[currentPageIndex];
       
-      // If no signals defined for this page, create placeholder signals
+      // If signals haven't been loaded for this page, load them from database
       if (currentPage.signals.length === 0) {
-        // Add some default signals for demonstration
-        // In the future, these could be loaded from the database
-        currentPage.signals = [
-          { name: `Page ${currentPageIndex + 1} Signal 1`, x: 100, y: 300 },
-          { name: `Page ${currentPageIndex + 1} Signal 2`, x: 150, y: 300 },
-          { name: `Page ${currentPageIndex + 1} Signal 3`, x: 200, y: 300 }
-        ];
+        signalNameElement.textContent = 'Loading signals...';
+        currentPage.signals = await loadSignalsForPage(currentPage.pageNumber, line);
+        
+        // If no signals found in database, show message and skip to next page
+        if (currentPage.signals.length === 0) {
+          signalNameElement.textContent = `No signals configured for Page ${currentPage.pageNumber}`;
+          setTimeout(() => {
+            currentPageIndex++;
+            if (currentPageIndex < pages.length) {
+              displayNextPage();
+            } else {
+              signalNameElement.textContent = 'Game Complete!';
+              setTimeout(onWin, 1000);
+            }
+          }, 2000);
+          return;
+        }
       }
       
-      const currentSignal = currentPage.signals[currentSignalIndex];
-      signalNameElement.textContent = currentSignal.name;
+      if (currentSignalIndex < currentPage.signals.length) {
+        const currentSignal = currentPage.signals[currentSignalIndex];
+        signalNameElement.textContent = `Find: ${currentSignal.name}`;
+      }
     }
-    function displayNextPage() {
+    
+    async function displayNextPage() {
       const currentPage = pages[currentPageIndex];
       schemaImage.src = currentPage.image;
       currentSignalIndex = 0;
-      displayNextSignal();
+      
+      // Clear any existing overlays
+      const existingOverlays = imageContainer.querySelectorAll('.overlay');
+      existingOverlays.forEach(overlay => overlay.remove());
+      
+      await displayNextSignal();
     }
     displayNextPage();
     imageContainer.onclick = (event) => {
@@ -110,37 +153,53 @@ const SchemaPro = {
       const clickX = event.clientX - rect.left;
       const clickY = event.clientY - rect.top;
       const currentPage = pages[currentPageIndex];
+      
+      if (currentSignalIndex >= currentPage.signals.length) return;
+      
       const currentSignal = currentPage.signals[currentSignalIndex];
-      const distance = Math.sqrt(
-        Math.pow(clickX - currentSignal.x, 2) + Math.pow(clickY - currentSignal.y, 2)
-      );
-      if (distance < 20) {
+      
+      // Calculate if click is within the signal's hitbox
+      const signalLeft = currentSignal.x;
+      const signalTop = currentSignal.y;
+      const signalRight = signalLeft + (currentSignal.width || 20);
+      const signalBottom = signalTop + (currentSignal.height || 20);
+      
+      const isHit = clickX >= signalLeft && clickX <= signalRight && 
+                   clickY >= signalTop && clickY <= signalBottom;
+      
+      if (isHit) {
         // Mark found
         const overlay = document.createElement('div');
         overlay.className = 'overlay';
         overlay.style.position = 'absolute';
         overlay.style.left = `${currentSignal.x}px`;
         overlay.style.top = `${currentSignal.y}px`;
-        overlay.style.width = '24px';
-        overlay.style.height = '24px';
+        overlay.style.width = `${currentSignal.width || 20}px`;
+        overlay.style.height = `${currentSignal.height || 20}px`;
         overlay.style.background = 'rgba(0,200,0,0.5)';
-        overlay.style.borderRadius = '50%';
+        overlay.style.borderRadius = '4px';
+        overlay.style.border = '2px solid rgba(0,200,0,0.8)';
         imageContainer.appendChild(overlay);
+        
         currentSignalIndex++;
         if (currentSignalIndex < currentPage.signals.length) {
           displayNextSignal();
         } else {
-          currentPageIndex++;
-          if (currentPageIndex < pages.length) {
-            displayNextPage();
-          } else {
-            signalNameElement.textContent = 'Game Over!';
-            setTimeout(onWin, 1000);
-          }
+          // All signals found on this page, move to next page
+          signalNameElement.textContent = `Page ${currentPage.pageNumber} Complete!`;
+          setTimeout(() => {
+            currentPageIndex++;
+            if (currentPageIndex < pages.length) {
+              displayNextPage();
+            } else {
+              signalNameElement.textContent = 'All Pages Complete!';
+              setTimeout(onWin, 1000);
+            }
+          }, 1500);
         }
       } else {
         // Wrong click
-        alert('Try again!');
+        alert('Try again! Look for the signal more carefully.');
         setTimeout(onLose, 500);
       }
     };
