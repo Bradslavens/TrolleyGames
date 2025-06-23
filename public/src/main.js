@@ -12,9 +12,9 @@ async function startApp() {
   const progress = await getProgress(user);
   showMenu(progress, (selectedLine, levelIdx) => {
     loadLevel(levelIdx, selectedLine, user);
-  }, (selectedLine) => {
-    // SchemaPro standalone game callback
-    startSchemaPro(selectedLine, user);
+  }, () => {
+    // SchemaPro standalone game callback - no line parameter needed
+    startSchemaPro(user);
   });
 }
 
@@ -32,8 +32,8 @@ function loadLevel(levelIdx, line, user) {
   });
 }
 
-function startSchemaPro(line, user) {
-  SchemaPro.start(line, user, {
+function startSchemaPro(user) {
+  SchemaPro.start(null, user, {
     onWin: () => {
       showOverlay('Congratulations! You completed SchemaPro!');
       setTimeout(() => {
@@ -45,7 +45,7 @@ function startSchemaPro(line, user) {
       showOverlay('Try again!');
       setTimeout(() => {
         // Restart SchemaPro
-        startSchemaPro(line, user);
+        startSchemaPro(user);
       }, 1000);
     }
   });

@@ -23,7 +23,7 @@ function getApiBaseUrl() {
 }
 
 // Function to load signals from database for a specific page
-async function loadSignalsForPage(pageNumber, line) {
+async function loadSignalsForPage(pageNumber) {
   try {
     const baseURL = getApiBaseUrl();
     const config = window.TROLLEY_GAMES_CONFIG || {};
@@ -34,7 +34,7 @@ async function loadSignalsForPage(pageNumber, line) {
     const timeoutId = setTimeout(() => controller.abort(), timeout);
     
     const response = await fetch(
-      `${baseURL}/api/signals?line=${encodeURIComponent(line)}&page=${pageNumber}`,
+      `${baseURL}/api/signals?page=${pageNumber}`,
       { 
         signal: controller.signal,
         headers: {
@@ -58,7 +58,8 @@ async function loadSignalsForPage(pageNumber, line) {
         y: signal.hitbox_y,
         width: signal.hitbox_width,
         height: signal.hitbox_height,
-        correct: signal.correct
+        correct: signal.correct,
+        line: signal.line
       }));
     }
     return [];
@@ -195,7 +196,7 @@ const SchemaPro = {
     `;
     gameTitle.innerHTML = `
       <h2 style="margin: 0 0 5px 0;">🎯 SchemaPro</h2>
-      <p style="margin: 0; opacity: 0.9; font-size: 14px;">Line: ${line}</p>
+      <p style="margin: 0; opacity: 0.9; font-size: 14px;">Find all signals on each page</p>
     `;
     app.appendChild(gameTitle);
     
@@ -301,7 +302,7 @@ const SchemaPro = {
       // If signals haven't been loaded for this page, load them from database
       if (currentPage.signals.length === 0) {
         signalNameElement.textContent = 'Loading signals...';
-        const loadedSignals = await loadSignalsForPage(currentPage.pageNumber, line);
+        const loadedSignals = await loadSignalsForPage(currentPage.pageNumber);
         
         // If no signals found in database, show message and skip to next page
         if (loadedSignals.length === 0) {
@@ -339,8 +340,9 @@ const SchemaPro = {
       
       if (currentSignalIndex < gameSignals.length) {
         const currentSignal = gameSignals[currentSignalIndex];
+        const lineInfo = currentSignal.line ? ` (${currentSignal.line})` : '';
         signalNameElement.innerHTML = `
-          <div>Find Signal: <span style="color: #2196F3;">${currentSignal.name}</span></div>
+          <div>Find Signal: <span style="color: #2196F3;">${currentSignal.name}</span><span style="color: #888; font-size: 14px;">${lineInfo}</span></div>
           <div style="font-size: 14px; margin-top: 5px; color: #666;">
             Signal ${currentSignalIndex + 1} of ${gameSignals.length}
           </div>

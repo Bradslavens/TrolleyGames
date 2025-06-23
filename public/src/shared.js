@@ -49,38 +49,32 @@ export function showMenu(progress, onSelectLevel, onSelectSchemaPro) {
   schemaProDesc.style.opacity = '0.9';
   schemaProSection.appendChild(schemaProDesc);
   
-  const schemaProButtons = document.createElement('div');
-  schemaProButtons.style.display = 'flex';
-  schemaProButtons.style.gap = '10px';
-  schemaProButtons.style.flexWrap = 'wrap';
-  schemaProButtons.style.justifyContent = 'center';
+  const schemaProButton = document.createElement('button');
+  schemaProButton.textContent = 'Play SchemaPro';
+  schemaProButton.style.cssText = `
+    background: rgba(255,255,255,0.2);
+    border: 2px solid rgba(255,255,255,0.3);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16px;
+    transition: all 0.3s ease;
+  `;
+  schemaProButton.onmouseover = () => {
+    schemaProButton.style.background = 'rgba(255,255,255,0.3)';
+    schemaProButton.style.borderColor = 'rgba(255,255,255,0.5)';
+    schemaProButton.style.transform = 'translateY(-2px)';
+  };
+  schemaProButton.onmouseout = () => {
+    schemaProButton.style.background = 'rgba(255,255,255,0.2)';
+    schemaProButton.style.borderColor = 'rgba(255,255,255,0.3)';
+    schemaProButton.style.transform = 'translateY(0)';
+  };
+  schemaProButton.onclick = () => onSelectSchemaPro();
   
-  lines.forEach(line => {
-    const btn = document.createElement('button');
-    btn.textContent = line;
-    btn.style.cssText = `
-      background: rgba(255,255,255,0.2);
-      border: 2px solid rgba(255,255,255,0.3);
-      color: white;
-      padding: 8px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: all 0.3s ease;
-    `;
-    btn.onmouseover = () => {
-      btn.style.background = 'rgba(255,255,255,0.3)';
-      btn.style.borderColor = 'rgba(255,255,255,0.5)';
-    };
-    btn.onmouseout = () => {
-      btn.style.background = 'rgba(255,255,255,0.2)';
-      btn.style.borderColor = 'rgba(255,255,255,0.3)';
-    };
-    btn.onclick = () => onSelectSchemaPro(line);
-    schemaProButtons.appendChild(btn);
-  });
-  
-  schemaProSection.appendChild(schemaProButtons);
+  schemaProSection.appendChild(schemaProButton);
   container.appendChild(schemaProSection);
   
   // Regular levels section
