@@ -1,3 +1,5 @@
+import { API_BASE_URL } from "./config";
+
 export async function login() {
   // Use localStorage for demo; replace with real login UI if needed
   let username = localStorage.getItem('tg_username');
@@ -23,7 +25,7 @@ export async function getProgress(user) {
   const progress = {};
   for (const line of lines) {
     try {
-      const res = await fetch(`http://localhost:3001/api/get-progress?username=${encodeURIComponent(user)}&line=${encodeURIComponent(line)}`);
+      const res = await fetch(`${API_BASE_URL}api/get-progress?username=${encodeURIComponent(user)}&line=${encodeURIComponent(line)}`);
       const data = await res.json();
       progress[line] = data.levelIdx;
     } catch {
@@ -34,7 +36,7 @@ export async function getProgress(user) {
 }
 
 export async function setProgress(user, line, levelIdx) {
-  await fetch('http://localhost:3001/api/set-progress', {
+  await fetch(`${API_BASE_URL}api/set-progress`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username: user, line, levelIdx })
