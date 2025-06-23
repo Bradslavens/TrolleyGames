@@ -66,6 +66,27 @@ const addProgressTable = () => {
 };
 addProgressTable();
 
+// Add signals table if not exists
+const addSignalsTable = () => {
+  db.run(`CREATE TABLE IF NOT EXISTS signals (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    prefix TEXT,
+    number TEXT NOT NULL,
+    suffix TEXT,
+    correct BOOLEAN NOT NULL DEFAULT 0,
+    location TEXT,
+    hitbox_x INTEGER,
+    hitbox_y INTEGER,
+    hitbox_width INTEGER,
+    hitbox_height INTEGER,
+    line TEXT NOT NULL,
+    page TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`);
+};
+addSignalsTable();
+
 // Register endpoint
 app.post('/api/register', (req, res) => {
   const { username, password } = req.body;
@@ -163,6 +184,127 @@ app.get('/api/get-progress', (req, res) => {
     if (err) return res.status(500).json({ error: 'DB error' });
     res.json({ levelIdx: row ? row.levelIdx : 0 });
   });
+});
+
+// SIGNALS CRUD ENDPOINTS
+
+// Get all signals
+app.get('/api/signals', (req, res) => {
+  const { line, page } = req.query;
+  let query = 'SELECT * FROM signals';
+  let params = [];
+  
+  if (line || page) {
+    query += ' WHERE';
+    const conditions = [];
+    if (line) {
+      conditions.push(' line = ?');
+      params.push(line);
+    }
+    if (page) {
+      conditions.push(' page = ?');
+      params.push(page);
+    }
+    query += conditions.join(' AND');
+  }
+  
+  query += ' ORDER BY line, page, number';
+  
+  db.all(query, params, (err, rows) => {
+    if (err) return res.status(500).json({ error: 'DB error' });
+    res.json({ signals: rows || [] });
+  });
+});
+
+// Get signal by ID
+app.get('/api/signals/:id', (req, res) => {
+  const { id } = req.params;
+  db.get('SELECT * FROM signals WHERE id = ?', [id], (err, row) => {
+    if (err) return res.status(500).json({ error: 'DB error' });
+    if (!row) return res.status(404).json({ error: 'Signal not found' });
+    res.json({ signal: row });
+  });
+});
+
+// Create new signal
+app.post('/api/signals', (req, res) => {
+  const { prefix, number, suffix, correct, location, hitbox_x, hitbox_y, hitbox_width, hitbox_height, line, page } = req.body;
+  
+  if (!number || !line) {
+    return res.status(400).json({ error: 'Number and line are required fields' });
+  }
+  
+  const query = `INSERT INTO signals 
+    (prefix, number, suffix, correct, location, hitbox_x, hitbox_y, hitbox_width, hitbox_height, line, page) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  
+  const params = [prefix || '', number, suffix || '', correct ? 1 : 0, location || '', 
+                 hitbox_x || 0, hitbox_y || 0, hitbox_width || 0, hitbox_height || 0, line, page || ''];
+  
+  db.run(query, params, function(err) {
+    if (err) return res.status(500).json({ error: 'DB error: ' + err.message });
+    res.json({ success: true, id: this.lastID });
+  });
+});
+
+// Update signal
+app.put('/api/signals/:id', (req, res) => {
+  const { id } = req.params;
+  const { prefix, number, suffix, correct, location, hitbox_x, hitbox_y, hitbox_width, hitbox_height, line, page } = req.body;
+  
+  if (!number || !line) {
+    return res.status(400).json({ error: 'Number and line are required fields' });
+  }
+  
+  const query = `UPDATE signals SET 
+    prefix = ?, number = ?, suffix = ?, correct = ?, location = ?, 
+    hitbox_x = ?, hitbox_y = ?, hitbox_width = ?, hitbox_height = ?, 
+    line = ?, page = ?, updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?`;
+  
+  const params = [prefix || '', number, suffix || '', correct ? 1 : 0, location || '', 
+                 hitbox_x || 0, hitbox_y || 0, hitbox_width || 0, hitbox_height || 0, line, page || '', id];
+  
+  db.run(query, params, function(err) {
+    if (err) return res.status(500).json({ error: 'DB error: ' + err.message });
+    if (this.changes === 0) return res.status(404).json({ error: 'Signal not found' });
+    res.json({ success: true });
+  });
+});
+
+// Delete signal
+app.delete('/api/signals/:id', (req, res) => {
+  const { id } = req.params;
+  db.run('DELETE FROM signals WHERE id = ?', [id], function(err) {
+    if (err) return res.status(500).json({ error: 'DB error' });
+    if (this.changes === 0) return res.status(404).json({ error: 'Signal not found' });
+    res.json({ success: true });
+  });
+});
+
+// Export signals in the format expected by your game
+app.get('/api/signals/export/:format', (req, res) => {
+  const { format } = req.params;
+  
+  if (format === 'correctSignals') {
+    db.all('SELECT * FROM signals WHERE correct = 1 ORDER BY line, page, number', [], (err, rows) => {
+      if (err) return res.status(500).json({ error: 'DB error' });
+      
+      const correctSignals = {};
+      rows.forEach(signal => {
+        const key = signal.line;
+        if (!correctSignals[key]) {
+          correctSignals[key] = [];
+        }
+        const signalNumber = (signal.prefix || '') + signal.number + (signal.suffix || '');
+        correctSignals[key].push(signalNumber);
+      });
+      
+      res.json({ correctSignals });
+    });
+  } else {
+    res.status(400).json({ error: 'Invalid export format' });
+  }
 });
 
 app.listen(PORT, () => {
