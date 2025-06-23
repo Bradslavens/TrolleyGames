@@ -1,2 +1,2 @@
-// Set this to your Render backend URL after deployment
-export const API_BASE_URL = "https://trolleygames-1.onrender.com/"
+// Set this to your local backend URL for local development
+export const API_BASE_URL = "http://localhost:3001/"

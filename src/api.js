@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "./config";
+import { API_BASE_URL } from "./config.js";
 
 export async function login() {
   // Use localStorage for demo; replace with real login UI if needed
