@@ -29,6 +29,8 @@ async function loadPages() {
   const pages = [];
   let pageNumber = 1;
   
+  console.log('Loading pages from SchemaPro...');
+  
   while (true) {
     try {
       // Try to load Page_1.jpg, Page_2.png, etc. (capitalized)
@@ -37,10 +39,12 @@ async function loadPages() {
       
       for (const ext of extensions) {
         const imagePath = `assets/schemapro/pages/Page_${pageNumber}.${ext}`;
+        console.log(`Checking for image: ${imagePath}`);
         
         // Check if image exists by trying to load it
         const imageExists = await checkImageExists(imagePath);
         if (imageExists) {
+          console.log(`Found page: ${imagePath}`);
           pages.push({
             image: imagePath,
             pageNumber: pageNumber,
@@ -55,10 +59,12 @@ async function loadPages() {
       if (!pageFound) {
         for (const ext of extensions) {
           const imagePath = `assets/schemapro/pages/page_${pageNumber}.${ext}`;
+          console.log(`Checking for image (lowercase): ${imagePath}`);
           
           // Check if image exists by trying to load it
           const imageExists = await checkImageExists(imagePath);
           if (imageExists) {
+            console.log(`Found page (lowercase): ${imagePath}`);
             pages.push({
               image: imagePath,
               pageNumber: pageNumber,
@@ -71,15 +77,18 @@ async function loadPages() {
       }
       
       if (!pageFound) {
+        console.log(`No page found for page number: ${pageNumber}`);
         break; // No more pages found
       }
       
       pageNumber++;
     } catch (error) {
+      console.error('Error loading pages:', error);
       break;
     }
   }
   
+  console.log(`Total pages loaded: ${pages.length}`, pages);
   return pages;
 }
 
@@ -157,6 +166,7 @@ const SchemaPro = {
     
     async function displayNextPage() {
       const currentPage = pages[currentPageIndex];
+      console.log(`Loading page ${currentPage.pageNumber}: ${currentPage.image}`);
       schemaImage.src = currentPage.image;
       currentSignalIndex = 0;
       
