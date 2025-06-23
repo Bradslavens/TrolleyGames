@@ -32,7 +32,7 @@ const RememberBee = {
     // Keypad
     const keypad = document.createElement('div');
     keypad.className = 'keypad';
-    const keys = ['1','2','3','4','5','6','7','8','9','Clear','0','Submit'];
+    const keys = ['1','2','3','4','5','6','7','8','9','Clear','0']; // Removed 'Submit'
     keys.forEach(key => {
       const btn = document.createElement('button');
       btn.textContent = key;
@@ -61,43 +61,48 @@ const RememberBee = {
     function updateHealthDisplay() {
       healthDisplay.innerHTML = '❤'.repeat(health) + '<span style="color:#ccc">' + '❤'.repeat(MAX_HEALTH - health) + '</span>';
     }
+    function checkAnswer() {
+      const currentSignal = signalList[currentSignalIndex];
+      if (userInput === currentSignal) {
+        score++;
+        currentSignalIndex++;
+        updateProgressBar();
+        if (currentSignalIndex >= signalList.length) {
+          setTimeout(onWin, 1000);
+          return;
+        }
+        userInput = '';
+        updateUserEntryDisplay();
+      } else {
+        health--;
+        updateHealthDisplay();
+        if (health > 0) {
+          alert(`Incorrect! The correct answer was: ${currentSignal}\nYou have ${health} heart${health === 1 ? '' : 's'} left.`);
+          userInput = '';
+          updateUserEntryDisplay();
+        } else {
+          alert(`Incorrect! The correct answer was: ${currentSignal}\nNo hearts left. Restarting level.`);
+          currentSignalIndex = 0;
+          score = 0;
+          health = MAX_HEALTH;
+          updateProgressBar();
+          updateHealthDisplay();
+          userInput = '';
+          updateUserEntryDisplay();
+        }
+      }
+    }
     function handleKey(key) {
       if (key === 'Clear') {
         userInput = '';
         updateUserEntryDisplay();
-      } else if (key === 'Submit') {
-        const currentSignal = signalList[currentSignalIndex];
-        if (userInput === currentSignal) {
-          score++;
-          currentSignalIndex++;
-          updateProgressBar();
-          if (currentSignalIndex >= signalList.length) {
-            setTimeout(onWin, 1000);
-            return;
-          }
-          userInput = '';
-          updateUserEntryDisplay();
-        } else {
-          health--;
-          updateHealthDisplay();
-          if (health > 0) {
-            alert(`Incorrect! The correct answer was: ${currentSignal}\nYou have ${health} heart${health === 1 ? '' : 's'} left.`);
-            userInput = '';
-            updateUserEntryDisplay();
-          } else {
-            alert(`Incorrect! The correct answer was: ${currentSignal}\nNo hearts left. Restarting level.`);
-            currentSignalIndex = 0;
-            score = 0;
-            health = MAX_HEALTH;
-            updateProgressBar();
-            updateHealthDisplay();
-            userInput = '';
-            updateUserEntryDisplay();
-          }
-        }
       } else {
         userInput += key;
         updateUserEntryDisplay();
+        const currentSignal = signalList[currentSignalIndex];
+        if (userInput.length === currentSignal.length) {
+          setTimeout(checkAnswer, 150); // Small delay for UI update
+        }
       }
     }
     // Keyboard support for desktop/laptop
@@ -105,9 +110,6 @@ const RememberBee = {
       if (e.repeat) return; // Ignore held keys
       if (e.key >= '0' && e.key <= '9') {
         handleKey(e.key);
-        e.preventDefault();
-      } else if (e.key === 'Enter') {
-        handleKey('Submit');
         e.preventDefault();
       } else if (e.key === 'Backspace' || e.key === 'Delete' || e.key.toLowerCase() === 'c') {
         handleKey('Clear');
