@@ -9,7 +9,26 @@ const bodyParser = require('body-parser');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-app.use(cors());
+// CORS configuration to allow requests only from your frontend
+const allowedOrigins = [
+  'https://trolleygames-1.onrender.com/', // TODO: Replace with your static site's URL
+  'http://localhost:8080', // For local development
+  'http://127.0.0.1:8080' // For local development
+];
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  }
+};
+
+app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
 // Initialize SQLite DB
