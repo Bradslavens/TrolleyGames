@@ -79,9 +79,35 @@ const RememberBee = {
         updateUserEntryDisplay();
       }
     }
+    // Keyboard support for desktop/laptop
+    function handleKeyDown(e) {
+      if (e.repeat) return; // Ignore held keys
+      if (e.key >= '0' && e.key <= '9') {
+        handleKey(e.key);
+        e.preventDefault();
+      } else if (e.key === 'Enter') {
+        handleKey('Submit');
+        e.preventDefault();
+      } else if (e.key === 'Backspace' || e.key === 'Delete' || e.key.toLowerCase() === 'c') {
+        handleKey('Clear');
+        e.preventDefault();
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown);
+    // Remove event listener on exit
+    app._rememberbeeCleanup = () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
     // Init
     updateUserEntryDisplay();
     updateProgressBar();
   }
 };
+// Cleanup utility for navigation
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
+    const app = document.getElementById('app');
+    if (app && app._rememberbeeCleanup) app._rememberbeeCleanup();
+  });
+}
 export default RememberBee;
