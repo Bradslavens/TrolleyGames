@@ -54,10 +54,10 @@ async function loadSignalsForPage(pageNumber) {
     if (data.signals && Array.isArray(data.signals)) {
       return data.signals.map(signal => ({
         name: `${signal.prefix || ''}${signal.number}${signal.suffix || ''}`,
-        x: signal.hitbox_x,
-        y: signal.hitbox_y,
-        width: signal.hitbox_width,
-        height: signal.hitbox_height,
+        xPercent: signal.hitbox_x, // Store as percentage
+        yPercent: signal.hitbox_y, // Store as percentage
+        widthPercent: signal.hitbox_width, // Store as percentage
+        heightPercent: signal.hitbox_height, // Store as percentage
         correct: signal.correct,
         line: signal.line
       }));
@@ -260,6 +260,32 @@ const SchemaPro = {
     const schemaImage = document.createElement('img');
     schemaImage.id = 'schema-image';
     schemaImage.style.maxWidth = '100%';
+    
+    // Function to update hitbox positions when image size changes
+    function updateHitboxPositions() {
+      const hitboxOutlines = imageContainer.querySelectorAll('.hitbox-outline');
+      const imageRect = schemaImage.getBoundingClientRect();
+      
+      hitboxOutlines.forEach((hitbox, index) => {
+        if (index < gameSignals.length) {
+          const signal = gameSignals[index];
+          const xPixels = (signal.xPercent / 100) * imageRect.width;
+          const yPixels = (signal.yPercent / 100) * imageRect.height;
+          const widthPixels = (signal.widthPercent / 100) * imageRect.width;
+          const heightPixels = (signal.heightPercent / 100) * imageRect.height;
+          
+          hitbox.style.left = `${xPixels}px`;
+          hitbox.style.top = `${yPixels}px`;
+          hitbox.style.width = `${widthPixels || 20}px`;
+          hitbox.style.height = `${heightPixels || 20}px`;
+        }
+      });
+    }
+    
+    // Update hitbox positions when image loads or resizes
+    schemaImage.addEventListener('load', updateHitboxPositions);
+    window.addEventListener('resize', updateHitboxPositions);
+    
     imageContainer.appendChild(schemaImage);
     container.appendChild(imageContainer);
     app.appendChild(container);
@@ -338,22 +364,33 @@ const SchemaPro = {
         currentSignalIndex = 0;
         
         // Add red hitbox outlines for testing
-        gameSignals.forEach((signal, index) => {
-          const hitboxOutline = document.createElement('div');
-          hitboxOutline.className = 'hitbox-outline';
-          hitboxOutline.style.position = 'absolute';
-          hitboxOutline.style.left = `${signal.x}px`;
-          hitboxOutline.style.top = `${signal.y}px`;
-          hitboxOutline.style.width = `${signal.width || 20}px`;
-          hitboxOutline.style.height = `${signal.height || 20}px`;
-          hitboxOutline.style.border = '2px solid red';
-          hitboxOutline.style.borderRadius = '4px';
-          hitboxOutline.style.background = 'rgba(255,0,0,0.1)';
-          hitboxOutline.style.pointerEvents = 'none';
-          hitboxOutline.style.zIndex = '999';
-          hitboxOutline.title = signal.name; // Tooltip for debugging
-          imageContainer.appendChild(hitboxOutline);
-        });
+        // Use setTimeout to ensure image has loaded and has proper dimensions
+        setTimeout(() => {
+          gameSignals.forEach((signal, index) => {
+            const hitboxOutline = document.createElement('div');
+            hitboxOutline.className = 'hitbox-outline';
+            hitboxOutline.style.position = 'absolute';
+            
+            // Convert percentage to pixels based on current image size
+            const imageRect = schemaImage.getBoundingClientRect();
+            const xPixels = (signal.xPercent / 100) * imageRect.width;
+            const yPixels = (signal.yPercent / 100) * imageRect.height;
+            const widthPixels = (signal.widthPercent / 100) * imageRect.width;
+            const heightPixels = (signal.heightPercent / 100) * imageRect.height;
+            
+            hitboxOutline.style.left = `${xPixels}px`;
+            hitboxOutline.style.top = `${yPixels}px`;
+            hitboxOutline.style.width = `${widthPixels || 20}px`;
+            hitboxOutline.style.height = `${heightPixels || 20}px`;
+            hitboxOutline.style.border = '2px solid red';
+            hitboxOutline.style.borderRadius = '4px';
+            hitboxOutline.style.background = 'rgba(255,0,0,0.1)';
+            hitboxOutline.style.pointerEvents = 'none';
+            hitboxOutline.style.zIndex = '999';
+            hitboxOutline.title = signal.name; // Tooltip for debugging
+            imageContainer.appendChild(hitboxOutline);
+          });
+        }, 100); // Small delay to ensure image dimensions are available
       }
       
       if (currentSignalIndex < gameSignals.length) {
@@ -387,31 +424,41 @@ const SchemaPro = {
       const clickX = event.clientX - rect.left;
       const clickY = event.clientY - rect.top;
       
+      // Calculate click position as percentages
+      const clickXPercent = (clickX / rect.width) * 100;
+      const clickYPercent = (clickY / rect.height) * 100;
+      
       if (currentSignalIndex >= gameSignals.length) return;
       
       const currentSignal = gameSignals[currentSignalIndex];
       
-      // Calculate if click is within the signal's hitbox
-      const signalLeft = currentSignal.x;
-      const signalTop = currentSignal.y;
-      const signalRight = signalLeft + (currentSignal.width || 20);
-      const signalBottom = signalTop + (currentSignal.height || 20);
+      // Calculate if click is within the signal's hitbox using percentages
+      const signalLeft = currentSignal.xPercent;
+      const signalTop = currentSignal.yPercent;
+      const signalRight = signalLeft + (currentSignal.widthPercent || 2);
+      const signalBottom = signalTop + (currentSignal.heightPercent || 2);
       
-      const isHit = clickX >= signalLeft && clickX <= signalRight && 
-                   clickY >= signalTop && clickY <= signalBottom;
+      const isHit = clickXPercent >= signalLeft && clickXPercent <= signalRight && 
+                   clickYPercent >= signalTop && clickYPercent <= signalBottom;
       
       if (isHit) {
         // Correct hit - add point and mark signal
         score++;
         
+        // Convert percentage back to pixels for display
+        const xPixels = (currentSignal.xPercent / 100) * rect.width;
+        const yPixels = (currentSignal.yPercent / 100) * rect.height;
+        const widthPixels = (currentSignal.widthPercent / 100) * rect.width;
+        const heightPixels = (currentSignal.heightPercent / 100) * rect.height;
+        
         // Create green overlay for hitbox
         const overlay = document.createElement('div');
         overlay.className = 'overlay';
         overlay.style.position = 'absolute';
-        overlay.style.left = `${currentSignal.x}px`;
-        overlay.style.top = `${currentSignal.y}px`;
-        overlay.style.width = `${currentSignal.width || 20}px`;
-        overlay.style.height = `${currentSignal.height || 20}px`;
+        overlay.style.left = `${xPixels}px`;
+        overlay.style.top = `${yPixels}px`;
+        overlay.style.width = `${widthPixels || 20}px`;
+        overlay.style.height = `${heightPixels || 20}px`;
         overlay.style.background = 'rgba(0,200,0,0.3)';
         overlay.style.borderRadius = '4px';
         overlay.style.border = '2px solid rgba(0,200,0,0.8)';
@@ -422,8 +469,8 @@ const SchemaPro = {
         const signalLabel = document.createElement('div');
         signalLabel.className = 'signal-label';
         signalLabel.style.position = 'absolute';
-        signalLabel.style.left = `${currentSignal.x}px`;
-        signalLabel.style.top = `${currentSignal.y - 25}px`;
+        signalLabel.style.left = `${xPixels}px`;
+        signalLabel.style.top = `${yPixels - 25}px`;
         signalLabel.style.background = 'rgba(0,200,0,0.9)';
         signalLabel.style.color = 'white';
         signalLabel.style.padding = '4px 8px';
