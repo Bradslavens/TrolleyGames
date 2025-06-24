@@ -96,7 +96,6 @@ const addSignalsTable = () => {
     number TEXT NOT NULL,
     suffix TEXT,
     correct BOOLEAN NOT NULL DEFAULT 0,
-    location TEXT,
     hitbox_x INTEGER,
     hitbox_y INTEGER,
     hitbox_width INTEGER,
@@ -262,17 +261,17 @@ app.get('/api/signals/:id', (req, res) => {
 
 // Create new signal
 app.post('/api/signals', (req, res) => {
-  const { prefix, number, suffix, correct, location, hitbox_x, hitbox_y, hitbox_width, hitbox_height, line, page } = req.body;
+  const { prefix, number, suffix, correct, hitbox_x, hitbox_y, hitbox_width, hitbox_height, line, page } = req.body;
   
   if (!number || !line) {
     return res.status(400).json({ error: 'Number and line are required fields' });
   }
   
   const query = `INSERT INTO signals 
-    (prefix, number, suffix, correct, location, hitbox_x, hitbox_y, hitbox_width, hitbox_height, line, page) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    (prefix, number, suffix, correct, hitbox_x, hitbox_y, hitbox_width, hitbox_height, line, page) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
   
-  const params = [prefix || '', number, suffix || '', correct ? 1 : 0, location || '', 
+  const params = [prefix || '', number, suffix || '', correct ? 1 : 0, 
                  hitbox_x || 0, hitbox_y || 0, hitbox_width || 0, hitbox_height || 0, line, page || ''];
   
   db.run(query, params, function(err) {
@@ -284,19 +283,19 @@ app.post('/api/signals', (req, res) => {
 // Update signal
 app.put('/api/signals/:id', (req, res) => {
   const { id } = req.params;
-  const { prefix, number, suffix, correct, location, hitbox_x, hitbox_y, hitbox_width, hitbox_height, line, page } = req.body;
+  const { prefix, number, suffix, correct, hitbox_x, hitbox_y, hitbox_width, hitbox_height, line, page } = req.body;
   
   if (!number || !line) {
     return res.status(400).json({ error: 'Number and line are required fields' });
   }
   
   const query = `UPDATE signals SET 
-    prefix = ?, number = ?, suffix = ?, correct = ?, location = ?, 
+    prefix = ?, number = ?, suffix = ?, correct = ?, 
     hitbox_x = ?, hitbox_y = ?, hitbox_width = ?, hitbox_height = ?, 
     line = ?, page = ?, updated_at = CURRENT_TIMESTAMP
     WHERE id = ?`;
   
-  const params = [prefix || '', number, suffix || '', correct ? 1 : 0, location || '', 
+  const params = [prefix || '', number, suffix || '', correct ? 1 : 0, 
                  hitbox_x || 0, hitbox_y || 0, hitbox_width || 0, hitbox_height || 0, line, page || '', id];
   
   db.run(query, params, function(err) {

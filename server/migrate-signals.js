@@ -43,7 +43,6 @@ const createTable = () => {
       number TEXT NOT NULL,
       suffix TEXT,
       correct BOOLEAN NOT NULL DEFAULT 0,
-      location TEXT,
       hitbox_x INTEGER,
       hitbox_y INTEGER,
       hitbox_width INTEGER,
@@ -90,15 +89,14 @@ const insertSignals = (signalsData, isCorrect = true, isTest = false) => {
         
         const insertPromise = new Promise((resolveInsert, rejectInsert) => {
           const query = `INSERT INTO signals 
-            (prefix, number, suffix, correct, location, hitbox_x, hitbox_y, hitbox_width, hitbox_height, line, page) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            (prefix, number, suffix, correct, hitbox_x, hitbox_y, hitbox_width, hitbox_height, line, page) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
           
           const params = [
             parsed.prefix,
             parsed.number,
             parsed.suffix,
             isCorrect ? 1 : 0,
-            '', // location
             0,  // hitbox_x
             0,  // hitbox_y
             0,  // hitbox_width

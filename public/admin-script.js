@@ -73,11 +73,11 @@ class SignalAdmin {
     }
 
     showLoading() {
-        document.getElementById('signalsTableBody').innerHTML = '<tr><td colspan="10" class="loading">Loading signals...</td></tr>';
+        document.getElementById('signalsTableBody').innerHTML = '<tr><td colspan="9" class="loading">Loading signals...</td></tr>';
     }
 
     showError(message) {
-        document.getElementById('signalsTableBody').innerHTML = `<tr><td colspan="10" class="error">Error: ${message}</td></tr>`;
+        document.getElementById('signalsTableBody').innerHTML = `<tr><td colspan="9" class="error">Error: ${message}</td></tr>`;
     }
 
     showSuccess(message) {
@@ -105,7 +105,7 @@ class SignalAdmin {
         const pageSignals = this.filteredSignals.slice(startIdx, endIdx);
         
         if (pageSignals.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 40px; color: #666;">No signals found</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px; color: #666;">No signals found</td></tr>';
             return;
         }
         
@@ -116,7 +116,6 @@ class SignalAdmin {
                 <td><strong>${signal.number}</strong></td>
                 <td>${signal.suffix || ''}</td>
                 <td><span class="${signal.correct ? 'correct-signal' : 'incorrect-signal'}">${signal.correct ? '✓ Correct' : '✗ Incorrect'}</span></td>
-                <td>${signal.location || ''}</td>
                 <td class="hitbox-info" title="X: ${signal.hitbox_x}, Y: ${signal.hitbox_y}, W: ${signal.hitbox_width}, H: ${signal.hitbox_height}">
                     ${signal.hitbox_width}×${signal.hitbox_height}
                 </td>
@@ -197,7 +196,6 @@ class SignalAdmin {
         document.getElementById('number').value = signal.number;
         document.getElementById('suffix').value = signal.suffix || '';
         document.getElementById('correct').checked = signal.correct;
-        document.getElementById('location').value = signal.location || '';
         document.getElementById('hitbox_x').value = signal.hitbox_x || 0;
         document.getElementById('hitbox_y').value = signal.hitbox_y || 0;
         document.getElementById('hitbox_width').value = signal.hitbox_width || 0;
@@ -258,7 +256,6 @@ class SignalAdmin {
             number: formData.get('number'),
             suffix: formData.get('suffix'),
             correct: formData.get('correct') === 'on',
-            location: formData.get('location'),
             hitbox_x: parseInt(formData.get('hitbox_x')) || 0,
             hitbox_y: parseInt(formData.get('hitbox_y')) || 0,
             hitbox_width: parseInt(formData.get('hitbox_width')) || 0,
@@ -337,7 +334,6 @@ class SignalAdmin {
                         number,
                         suffix,
                         correct: markAsCorrect,
-                        location: '',
                         hitbox_x: 0,
                         hitbox_y: 0,
                         hitbox_width: 0,
