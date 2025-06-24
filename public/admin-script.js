@@ -113,7 +113,7 @@ class SignalAdmin {
             <tr>
                 <td>${signal.id}</td>
                 <td>${signal.prefix || ''}</td>
-                <td><strong>${signal.number}</strong></td>
+                <td><strong>${signal.item_name}</strong></td>
                 <td>${signal.suffix || ''}</td>
                 <td><span class="${signal.correct ? 'correct-signal' : 'incorrect-signal'}">${signal.correct ? '✓ Correct' : '✗ Incorrect'}</span></td>
                 <td class="hitbox-info" title="X: ${signal.hitbox_x}, Y: ${signal.hitbox_y}, W: ${signal.hitbox_width}, H: ${signal.hitbox_height}">
@@ -193,7 +193,7 @@ class SignalAdmin {
         document.getElementById('modalTitle').textContent = 'Edit Signal';
         document.getElementById('signalId').value = signal.id;
         document.getElementById('prefix').value = signal.prefix || '';
-        document.getElementById('number').value = signal.number;
+        document.getElementById('item_name').value = signal.item_name;
         document.getElementById('suffix').value = signal.suffix || '';
         document.getElementById('correct').checked = signal.correct;
         document.getElementById('hitbox_x').value = signal.hitbox_x || 0;
@@ -253,7 +253,7 @@ class SignalAdmin {
         const formData = new FormData(e.target);
         const signalData = {
             prefix: formData.get('prefix'),
-            number: formData.get('number'),
+            item_name: formData.get('item_name'),
             suffix: formData.get('suffix'),
             correct: formData.get('correct') === 'on',
             hitbox_x: parseFloat(formData.get('hitbox_x')) || 0,
@@ -331,7 +331,7 @@ class SignalAdmin {
 
                     const signalData = {
                         prefix,
-                        number,
+                        item_name: number, // Use the parsed number as item_name
                         suffix,
                         correct: markAsCorrect,
                         hitbox_x: 0,
@@ -429,8 +429,8 @@ class SignalAdmin {
             } else if (field === 'correct') {
                 aVal = aVal ? 1 : 0;
                 bVal = bVal ? 1 : 0;
-            } else if (field === 'number') {
-                // Sort numbers numerically if they're numeric, otherwise alphabetically
+            } else if (field === 'item_name') {
+                // Sort item names numerically if they're numeric, otherwise alphabetically
                 const aNum = parseInt(aVal);
                 const bNum = parseInt(bVal);
                 if (!isNaN(aNum) && !isNaN(bNum)) {

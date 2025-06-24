@@ -93,7 +93,7 @@ const addSignalsTable = () => {
   db.run(`CREATE TABLE IF NOT EXISTS signals (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     prefix TEXT,
-    number TEXT NOT NULL,
+    item_name TEXT(20) NOT NULL,
     suffix TEXT,
     correct BOOLEAN NOT NULL DEFAULT 0,
     hitbox_x REAL,
@@ -229,7 +229,7 @@ app.get('/api/signals', (req, res) => {
     query += conditions.join(' AND');
   }
   
-  query += ' ORDER BY line, page, number';
+  query += ' ORDER BY line, page, item_name';
   
   db.all(query, params, (err, rows) => {
     if (err) {
@@ -261,17 +261,17 @@ app.get('/api/signals/:id', (req, res) => {
 
 // Create new signal
 app.post('/api/signals', (req, res) => {
-  const { prefix, number, suffix, correct, hitbox_x, hitbox_y, hitbox_width, hitbox_height, line, page } = req.body;
+  const { prefix, item_name, suffix, correct, hitbox_x, hitbox_y, hitbox_width, hitbox_height, line, page } = req.body;
   
-  if (!number || !line) {
-    return res.status(400).json({ error: 'Number and line are required fields' });
+  if (!item_name || !line) {
+    return res.status(400).json({ error: 'Item name and line are required fields' });
   }
   
   const query = `INSERT INTO signals 
-    (prefix, number, suffix, correct, hitbox_x, hitbox_y, hitbox_width, hitbox_height, line, page) 
+    (prefix, item_name, suffix, correct, hitbox_x, hitbox_y, hitbox_width, hitbox_height, line, page) 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
   
-  const params = [prefix || '', number, suffix || '', correct ? 1 : 0, 
+  const params = [prefix || '', item_name, suffix || '', correct ? 1 : 0, 
                  parseFloat(hitbox_x) || 0, parseFloat(hitbox_y) || 0, parseFloat(hitbox_width) || 0, parseFloat(hitbox_height) || 0, line, page || ''];
   
   db.run(query, params, function(err) {
@@ -283,19 +283,19 @@ app.post('/api/signals', (req, res) => {
 // Update signal
 app.put('/api/signals/:id', (req, res) => {
   const { id } = req.params;
-  const { prefix, number, suffix, correct, hitbox_x, hitbox_y, hitbox_width, hitbox_height, line, page } = req.body;
+  const { prefix, item_name, suffix, correct, hitbox_x, hitbox_y, hitbox_width, hitbox_height, line, page } = req.body;
   
-  if (!number || !line) {
-    return res.status(400).json({ error: 'Number and line are required fields' });
+  if (!item_name || !line) {
+    return res.status(400).json({ error: 'Item name and line are required fields' });
   }
   
   const query = `UPDATE signals SET 
-    prefix = ?, number = ?, suffix = ?, correct = ?, 
+    prefix = ?, item_name = ?, suffix = ?, correct = ?, 
     hitbox_x = ?, hitbox_y = ?, hitbox_width = ?, hitbox_height = ?, 
     line = ?, page = ?, updated_at = CURRENT_TIMESTAMP
     WHERE id = ?`;
   
-  const params = [prefix || '', number, suffix || '', correct ? 1 : 0, 
+  const params = [prefix || '', item_name, suffix || '', correct ? 1 : 0, 
                  parseFloat(hitbox_x) || 0, parseFloat(hitbox_y) || 0, parseFloat(hitbox_width) || 0, parseFloat(hitbox_height) || 0, line, page || '', id];
   
   db.run(query, params, function(err) {
@@ -329,8 +329,8 @@ app.get('/api/signals/export/:format', (req, res) => {
         if (!correctSignals[key]) {
           correctSignals[key] = [];
         }
-        const signalNumber = (signal.prefix || '') + signal.number + (signal.suffix || '');
-        correctSignals[key].push(signalNumber);
+        const signalItemName = (signal.prefix || '') + signal.item_name + (signal.suffix || '');
+        correctSignals[key].push(signalItemName);
       });
       
       res.json({ correctSignals });

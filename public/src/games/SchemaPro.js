@@ -53,7 +53,7 @@ async function loadSignalsForPage(pageNumber) {
     
     if (data.signals && Array.isArray(data.signals)) {
       return data.signals.map(signal => ({
-        name: `${signal.prefix || ''}${signal.number}${signal.suffix || ''}`,
+        name: `${signal.prefix || ''}${signal.item_name}${signal.suffix || ''}`,
         xPercent: signal.hitbox_x, // Store as percentage
         yPercent: signal.hitbox_y, // Store as percentage
         widthPercent: signal.hitbox_width, // Store as percentage

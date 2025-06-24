@@ -40,7 +40,7 @@ const createTable = () => {
     db.run(`CREATE TABLE IF NOT EXISTS signals (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       prefix TEXT,
-      number TEXT NOT NULL,
+      item_name TEXT(20) NOT NULL,
       suffix TEXT,
       correct BOOLEAN NOT NULL DEFAULT 0,
       hitbox_x REAL,
@@ -89,12 +89,12 @@ const insertSignals = (signalsData, isCorrect = true, isTest = false) => {
         
         const insertPromise = new Promise((resolveInsert, rejectInsert) => {
           const query = `INSERT INTO signals 
-            (prefix, number, suffix, correct, hitbox_x, hitbox_y, hitbox_width, hitbox_height, line, page) 
+            (prefix, item_name, suffix, correct, hitbox_x, hitbox_y, hitbox_width, hitbox_height, line, page) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
           
           const params = [
             parsed.prefix,
-            parsed.number,
+            parsed.number, // This will become item_name
             parsed.suffix,
             isCorrect ? 1 : 0,
             0,  // hitbox_x
