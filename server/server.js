@@ -96,10 +96,10 @@ const addSignalsTable = () => {
     number TEXT NOT NULL,
     suffix TEXT,
     correct BOOLEAN NOT NULL DEFAULT 0,
-    hitbox_x INTEGER,
-    hitbox_y INTEGER,
-    hitbox_width INTEGER,
-    hitbox_height INTEGER,
+    hitbox_x REAL,
+    hitbox_y REAL,
+    hitbox_width REAL,
+    hitbox_height REAL,
     line TEXT NOT NULL,
     page TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -272,7 +272,7 @@ app.post('/api/signals', (req, res) => {
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
   
   const params = [prefix || '', number, suffix || '', correct ? 1 : 0, 
-                 hitbox_x || 0, hitbox_y || 0, hitbox_width || 0, hitbox_height || 0, line, page || ''];
+                 parseFloat(hitbox_x) || 0, parseFloat(hitbox_y) || 0, parseFloat(hitbox_width) || 0, parseFloat(hitbox_height) || 0, line, page || ''];
   
   db.run(query, params, function(err) {
     if (err) return res.status(500).json({ error: 'DB error: ' + err.message });
@@ -296,7 +296,7 @@ app.put('/api/signals/:id', (req, res) => {
     WHERE id = ?`;
   
   const params = [prefix || '', number, suffix || '', correct ? 1 : 0, 
-                 hitbox_x || 0, hitbox_y || 0, hitbox_width || 0, hitbox_height || 0, line, page || '', id];
+                 parseFloat(hitbox_x) || 0, parseFloat(hitbox_y) || 0, parseFloat(hitbox_width) || 0, parseFloat(hitbox_height) || 0, line, page || '', id];
   
   db.run(query, params, function(err) {
     if (err) return res.status(500).json({ error: 'DB error: ' + err.message });

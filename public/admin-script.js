@@ -256,10 +256,10 @@ class SignalAdmin {
             number: formData.get('number'),
             suffix: formData.get('suffix'),
             correct: formData.get('correct') === 'on',
-            hitbox_x: parseInt(formData.get('hitbox_x')) || 0,
-            hitbox_y: parseInt(formData.get('hitbox_y')) || 0,
-            hitbox_width: parseInt(formData.get('hitbox_width')) || 0,
-            hitbox_height: parseInt(formData.get('hitbox_height')) || 0,
+            hitbox_x: parseFloat(formData.get('hitbox_x')) || 0,
+            hitbox_y: parseFloat(formData.get('hitbox_y')) || 0,
+            hitbox_width: parseFloat(formData.get('hitbox_width')) || 0,
+            hitbox_height: parseFloat(formData.get('hitbox_height')) || 0,
             line: formData.get('line'),
             page: formData.get('page')
         };
