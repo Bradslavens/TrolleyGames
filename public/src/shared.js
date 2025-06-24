@@ -9,7 +9,6 @@ export function showMenu(progress, onSelectLevel, onSelectSchemaPro) {
   
   // Example: lines and levels
   const lines = [
-    "A Yard",
     "Blue Line North East",
     "Blue Line North West",
     "Blue Line South East",
