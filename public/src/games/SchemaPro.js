@@ -289,7 +289,7 @@ const SchemaPro = {
       currentSignalIndex = 0;
       
       // Clear all overlays
-      const existingOverlays = imageContainer.querySelectorAll('.overlay, .signal-label');
+      const existingOverlays = imageContainer.querySelectorAll('.overlay, .signal-label, .hitbox-outline');
       existingOverlays.forEach(overlay => overlay.remove());
       
       updateUI();
@@ -336,6 +336,24 @@ const SchemaPro = {
         currentPage.signals = loadedSignals;
         gameSignals = shuffleArray(currentPage.signals);
         currentSignalIndex = 0;
+        
+        // Add red hitbox outlines for testing
+        gameSignals.forEach((signal, index) => {
+          const hitboxOutline = document.createElement('div');
+          hitboxOutline.className = 'hitbox-outline';
+          hitboxOutline.style.position = 'absolute';
+          hitboxOutline.style.left = `${signal.x}px`;
+          hitboxOutline.style.top = `${signal.y}px`;
+          hitboxOutline.style.width = `${signal.width || 20}px`;
+          hitboxOutline.style.height = `${signal.height || 20}px`;
+          hitboxOutline.style.border = '2px solid red';
+          hitboxOutline.style.borderRadius = '4px';
+          hitboxOutline.style.background = 'rgba(255,0,0,0.1)';
+          hitboxOutline.style.pointerEvents = 'none';
+          hitboxOutline.style.zIndex = '999';
+          hitboxOutline.title = signal.name; // Tooltip for debugging
+          imageContainer.appendChild(hitboxOutline);
+        });
       }
       
       if (currentSignalIndex < gameSignals.length) {
@@ -357,7 +375,7 @@ const SchemaPro = {
       gameSignals = [];
       
       // Clear any existing overlays and labels
-      const existingOverlays = imageContainer.querySelectorAll('.overlay, .signal-label');
+      const existingOverlays = imageContainer.querySelectorAll('.overlay, .signal-label, .hitbox-outline');
       existingOverlays.forEach(overlay => overlay.remove());
       
       updateUI();
