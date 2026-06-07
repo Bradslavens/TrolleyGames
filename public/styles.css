@@ -1,95 +1,299 @@
-body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; margin: 0; }
-#app { max-width: 900px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 32px; }
-.menu {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 32px;
-  justify-content: center;
-  margin-top: 32px;
-}
-.line-block {
-  background: #f0f4f8;
-  border-radius: 8px;
-  box-shadow: 0 1px 4px #0001;
-  padding: 20px 16px 16px 16px;
-  min-width: 220px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.line-block strong {
-  font-size: 1.1em;
-  margin-bottom: 12px;
-  color: #1976d2;
-}
-.line-block button {
-  margin: 4px 0;
-  padding: 8px 18px;
-  border: none;
-  border-radius: 6px;
-  background: #1976d2;
-  color: #fff;
-  font-size: 1em;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-}
-.line-block button:disabled {
-  background: #b0bec5;
-  color: #eee;
-  cursor: not-allowed;
-}
-.line-block button:not(:disabled):hover {
-  background: #1565c0;
+/* ============================================================
+   TrolleyGames — UI built against design-tokens.css
+   Aesthetic: "Play Portal". Dark near-black canvas with a faint
+   grid, gradient wordmark, big bold display type, vibrant
+   candy-colored line cards with big rounded corners and glassy
+   pill controls, gold accent badges. Arcade storefront energy.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('./src/design-tokens.css');
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  font-family: var(--font-base);
+  color: var(--ink);
+  background-color: var(--bg);
+  /* Faint grid + two soft color glows, like the reference hero. */
+  background-image:
+    radial-gradient(60% 50% at 18% 0%, rgba(79, 124, 255, 0.16), transparent 70%),
+    radial-gradient(55% 45% at 90% 8%, rgba(255, 92, 168, 0.12), transparent 70%),
+    linear-gradient(var(--bg-2) 1px, transparent 1px),
+    linear-gradient(90deg, var(--bg-2) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 34px 34px, 34px 34px;
+  margin: 0;
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
 }
 
-/* RememberBee Game Styles */
-.rememberbee-container {
-  background: linear-gradient(135deg, #222 0%, #444 100%);
-  border-radius: 16px;
-  box-shadow: 0 4px 24px #0006;
-  padding: 32px 24px 24px 24px;
-  max-width: 420px;
-  margin: 40px auto;
+#app {
+  max-width: var(--app-max);
+  margin: 0 auto;
+  padding: var(--space-7) var(--space-6) var(--space-8);
+}
+
+/* ---------- Hero / masthead -------------------------------- */
+/* Gold pill badge above the wordmark. */
+#app h1 {
+  text-align: center;
+  margin: var(--space-6) 0 0;
+}
+#app h1::before {
+  content: '★ LEARN THE LINES · FREE';
+  display: block;
+  width: fit-content;
+  margin: 0 auto var(--space-4);
+  font-family: var(--font-base);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-caps);
+  color: var(--gold);
+  background: rgba(255, 200, 61, 0.10);
+  border: 1px solid rgba(255, 200, 61, 0.35);
+  border-radius: var(--radius-pill);
+  padding: var(--space-2) var(--space-4);
+}
+/* Gradient wordmark. */
+#app h1 {
+  font-family: var(--font-display);
+  font-weight: var(--weight-extrabold);
+  font-size: var(--text-4xl);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+#app > p {
+  text-align: center;
+  max-width: 46ch;
+  margin: var(--space-4) auto var(--space-7);
+  font-size: var(--text-base);
+  color: var(--ink-muted);
+}
+
+/* ---------- Menu grid --------------------------------------- */
+.menu {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(248px, 1fr));
+  gap: var(--space-5);
+}
+
+/* ---------- Vibrant line cards ----------------------------- */
+.line-block {
+  position: relative;
+  isolation: isolate;
+  background: var(--card-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  overflow: hidden;
+  color: var(--on-card);
+  transition: transform var(--dur-base) var(--ease-spring),
+              box-shadow var(--dur-base) var(--ease-out);
+}
+/* Glossy top-light sheen for depth. */
+.line-block::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(120% 80% at 0% 0%, rgba(255, 255, 255, 0.30), transparent 55%);
+}
+/* Glass "mini-games" count badge, top-right (echoes rating pills). */
+.line-block::after {
+  content: '🎮 4';
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  color: var(--on-card);
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-pill);
+  padding: var(--space-1) var(--space-3);
+  backdrop-filter: blur(6px);
+}
+.line-block:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-pop);
+}
+
+/* Color-code card fills by line family. */
+.line-block:has(strong[data-line^="Blue"])   { background: var(--card-blue); }
+.line-block:has(strong[data-line^="Orange"]) { background: var(--card-orange); }
+.line-block:has(strong[data-line^="Green"])  { background: var(--card-green); }
+
+/* Line name. */
+.line-block strong {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: var(--weight-extrabold);
+  font-size: var(--text-xl);
+  line-height: 1.1;
+  letter-spacing: var(--tracking-tight);
+  margin: var(--space-2) 0 var(--space-4);
+  max-width: 80%;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* ---------- Level buttons (glass pills on the card) -------- */
+.line-block button {
+  font-family: var(--font-base);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-sm);
+  text-align: left;
+  color: var(--on-card);
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-pill);
+  padding: var(--space-3) var(--space-4);
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: background var(--dur-fast) var(--ease-out),
+              transform var(--dur-fast) var(--ease-out),
+              box-shadow var(--dur-fast) var(--ease-out),
+              opacity var(--dur-fast) var(--ease-out);
+}
+.line-block button:not(:disabled):hover {
+  background: var(--glass-strong);
+  transform: translateX(3px);
+}
+.line-block button:not(:disabled):active { transform: translateX(0) scale(0.99); }
+
+/* Next unlocked level = solid white "play" pill. */
+.line-block button:not(:disabled):first-of-type {
+  background: #ffffff;
+  color: #15151c;
+  border-color: #ffffff;
+  box-shadow: var(--shadow-soft);
+}
+.line-block button:not(:disabled):first-of-type::after { content: '  ▸'; }
+.line-block button:not(:disabled):first-of-type:hover { background: #f1f1f6; }
+
+.line-block button:focus-visible { outline: none; box-shadow: var(--ring-focus); }
+.line-block button:disabled {
+  color: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.12);
+  cursor: not-allowed;
+}
+
+/* ---------- Shared button utility (nav glass pills) -------- */
+.tg-btn {
+  font-family: var(--font-base);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-sm);
+  color: var(--ink);
+  background: var(--surface-2);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-pill);
+  padding: var(--space-2) var(--space-5);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out),
+              transform var(--dur-fast) var(--ease-out),
+              box-shadow var(--dur-fast) var(--ease-out);
+}
+.tg-btn:hover { background: #2a2a38; transform: translateY(-1px); }
+.tg-btn:focus-visible { outline: none; box-shadow: var(--ring-focus); }
+.tg-btn--danger {
+  background: linear-gradient(160deg, #ff6b78, #e23b48);
+  border-color: transparent;
   color: #fff;
+}
+.tg-btn--danger:hover { filter: brightness(1.06); }
+
+/* ---------- Nav bar (Home / Logout) ------------------------- */
+#tg-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: var(--app-max);
+  margin: 0 auto var(--space-6);
+}
+
+/* ---------- Entrance motion --------------------------------- */
+@keyframes tg-pop-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.menu .line-block { animation: tg-pop-in var(--dur-slow) var(--ease-spring) both; }
+.menu .line-block:nth-child(2) { animation-delay: 50ms; }
+.menu .line-block:nth-child(3) { animation-delay: 100ms; }
+.menu .line-block:nth-child(4) { animation-delay: 150ms; }
+.menu .line-block:nth-child(5) { animation-delay: 200ms; }
+.menu .line-block:nth-child(6) { animation-delay: 250ms; }
+.menu .line-block:nth-child(7) { animation-delay: 300ms; }
+.menu .line-block:nth-child(8) { animation-delay: 350ms; }
+
+/* ============================================================
+   RememberBee (keypad) — kept in shell pass since it's
+   CSS-class driven. Other games styled in a follow-up.
+   ============================================================ */
+.rememberbee-container {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-6) var(--space-5) var(--space-5);
+  max-width: 420px;
+  margin: var(--space-7) auto;
+  color: var(--ink);
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 #userEntryDisplay {
-  font-size: 2.2em;
-  letter-spacing: 0.15em;
-  margin: 18px 0 10px 0;
-  color: #ffe082;
-  text-shadow: 0 2px 8px #000a;
+  font-family: var(--font-display);
+  font-weight: var(--weight-extrabold);
+  font-size: var(--text-3xl);
+  letter-spacing: 0.12em;
+  margin: var(--space-4) 0 var(--space-2);
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
   min-height: 1.5em;
 }
 .keypad {
   display: grid;
-  grid-template-columns: repeat(3, 60px);
-  gap: 12px;
-  margin: 24px 0 0 0;
+  grid-template-columns: repeat(3, 66px);
+  gap: var(--space-3);
+  margin-top: var(--space-5);
 }
 .keypad button {
-  background: linear-gradient(180deg, #1976d2 0%, #0d47a1 100%);
-  color: #fff;
-  font-size: 1.3em;
-  border: none;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px #0003;
-  padding: 16px 0;
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-lg);
+  color: var(--ink);
+  background: var(--surface-2);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) 0;
   cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
+  transition: background var(--dur-fast) var(--ease-out),
+              transform var(--dur-fast) var(--ease-out);
 }
-.keypad button:active {
-  background: #1565c0;
-  transform: scale(0.97);
-}
+.keypad button:hover { background: #2a2a38; }
+.keypad button:active { background: var(--accent); transform: scale(0.95); }
+
+/* Progress bar — gradient fill. */
 #progressBar {
   width: 100%;
-  height: 18px;
-  background: #333;
-  border-radius: 8px;
-  margin: 18px 0 8px 0;
+  height: 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-pill);
+  margin: var(--space-4) 0 var(--space-2);
   overflow: hidden;
   position: relative;
 }
@@ -97,10 +301,10 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; margin: 
   content: '';
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, #ffe082 0%, #ffd600 100%);
+  background: var(--brand-gradient);
   width: var(--progress, 0%);
-  transition: width 0.3s;
-  border-radius: 8px;
+  transition: width var(--dur-slow) var(--ease-out);
+  border-radius: var(--radius-pill);
   position: absolute;
   left: 0; top: 0;
 }
@@ -108,10 +312,27 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; margin: 
   position: absolute;
   width: 100%;
   text-align: center;
-  color: #222;
-  font-weight: bold;
-  top: 0;
-  left: 0;
-  font-size: 1em;
-  line-height: 18px;
+  font-family: var(--font-base);
+  font-weight: var(--weight-bold);
+  color: var(--ink);
+  top: 0; left: 0;
+  font-size: var(--text-xs);
+  line-height: 14px;
+  z-index: 1;
+}
+
+/* ---------- Reduced motion --------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ---------- Small screens ----------------------------------- */
+@media (max-width: 600px) {
+  #app { padding: var(--space-5) var(--space-4) var(--space-7); }
+  #app h1 { font-size: var(--text-3xl); }
+  .menu { grid-template-columns: 1fr; gap: var(--space-4); }
 }

@@ -1,0 +1,99 @@
+/* ============================================================
+   TrolleyGames — "Play Portal" Design Tokens
+   Modeled on a dark gaming-portal landing page: near-black UI
+   with a faint grid, gradient wordmark, big bold display type,
+   vibrant candy-colored game cards with big rounded corners and
+   glassy pills, gold accent badges. Components reference vars only.
+   ============================================================ */
+
+:root {
+  /* --- Type families ---------------------------------------- */
+  --font-display: 'Sora', 'Segoe UI', system-ui, sans-serif;  /* heavy hero */
+  --font-base: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif;
+
+  /* --- Type scale (1.28 modular, 16px base) ----------------- */
+  --text-xs: 0.75rem;     /* 12 */
+  --text-sm: 0.875rem;    /* 14 */
+  --text-base: 1rem;      /* 16 */
+  --text-lg: 1.25rem;     /* 20 */
+  --text-xl: 1.6rem;      /* 26 */
+  --text-2xl: 2.05rem;    /* 33 */
+  --text-3xl: 2.6rem;     /* 42 */
+  --text-4xl: 3.3rem;     /* 53 */
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-extrabold: 800;
+  --leading-tight: 1.05;
+  --leading-normal: 1.55;
+  --tracking-tight: -0.02em;
+  --tracking-caps: 0.08em;
+
+  /* --- Color: dark surfaces & text -------------------------- */
+  --bg: #0e0e13;          /* near-black page                   */
+  --bg-2: #131320;        /* faint grid line tint              */
+  --surface: #17171f;     /* raised panel                      */
+  --surface-2: #1f1f2b;   /* nested panel                      */
+  --ink: #ffffff;         /* primary text                      */
+  --ink-muted: #a0a0b0;   /* secondary text                    */
+  --ink-faint: #6c6c7a;   /* tertiary / disabled label         */
+  --hairline: rgba(255, 255, 255, 0.08);
+
+  /* --- Color: brand gradient (the wordmark) ----------------- */
+  --grad-1: #4f7cff;      /* blue                              */
+  --grad-2: #9b5cff;      /* purple                            */
+  --grad-3: #ff5ca8;      /* pink                              */
+  --brand-gradient: linear-gradient(100deg, var(--grad-1), var(--grad-2) 55%, var(--grad-3));
+
+  /* --- Color: accents --------------------------------------- */
+  --gold: #ffc83d;        /* badges / ratings                  */
+  --accent: var(--grad-2);
+  --danger: #ff5c6c;
+
+  /* --- Glass (controls on colored cards) -------------------- */
+  --glass: rgba(255, 255, 255, 0.16);
+  --glass-strong: rgba(255, 255, 255, 0.28);
+  --glass-border: rgba(255, 255, 255, 0.22);
+  --on-card: #ffffff;
+
+  /* --- Color: vibrant line-card fills (candy) --------------- */
+  --card-blue: linear-gradient(160deg, #58a8ff, #2f6bff);
+  --card-orange: linear-gradient(160deg, #ffb24a, #ff7a1a);
+  --card-green: linear-gradient(160deg, #46e29a, #11b673);
+  --card-default: linear-gradient(160deg, #6b6bff, #4a3bd6);
+
+  /* --- Spacing (4px base) ----------------------------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* --- Radius (big, friendly) ------------------------------- */
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-pill: 999px;
+
+  /* --- Shadows / glows -------------------------------------- */
+  --shadow-card: 0 18px 40px rgba(0, 0, 0, 0.45);
+  --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-pop: 0 14px 32px rgba(0, 0, 0, 0.5);
+  --ring-focus: 0 0 0 3px rgba(155, 92, 255, 0.55);
+
+  /* --- Motion ----------------------------------------------- */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast: 130ms;
+  --dur-base: 220ms;
+  --dur-slow: 420ms;
+
+  /* --- Layout ----------------------------------------------- */
+  --app-max: 1040px;
+}
