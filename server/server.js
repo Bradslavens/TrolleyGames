@@ -49,14 +49,21 @@ const app = express();
 app.set('trust proxy', 1); // correct client IPs behind Render's proxy (for rate-limit)
 
 // ---- Security middleware ----
-// Relax just the style/image CSP directives: the games legitimately use inline
-// style attributes and data: images. Everything else keeps helmet's defaults.
+// Relax a few CSP directives:
+//  - style-src/img-src: the games legitimately use inline styles and data: imgs.
+//  - upgrade-insecure-requests is removed (set to null): helmet enables it by
+//    default, which forces subresources to load over https. Browsers exempt
+//    localhost, but on a plain-http LAN address (e.g. 192.168.x.x) it would
+//    upgrade main.js/styles.css to https and fail, blanking the page. We serve
+//    http locally/on the LAN; production sits behind Render's own https.
+// Everything else keeps helmet's defaults.
 app.use(
   helmet({
     contentSecurityPolicy: {
       directives: {
         'style-src': ["'self'", "'unsafe-inline'"],
         'img-src': ["'self'", 'data:'],
+        'upgrade-insecure-requests': null,
       },
     },
   })
