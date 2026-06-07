@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "./config.js";
+import { showLoginForm } from "./login.js";
 
 const LINES = [
   "Blue Line North East",
@@ -26,18 +27,17 @@ export function logout() {
   localStorage.removeItem('tg_username');
 }
 
-// Prompt for credentials and exchange them for a session token. Loops until
-// the user authenticates or cancels. Returns the username, or null if cancelled.
+// Show the login screen and exchange credentials for a session token. Loops,
+// re-rendering the form with an inline error, until the user authenticates.
+// Returns the username.
 export async function login() {
   // Reuse an existing session if we have one.
   const existing = localStorage.getItem('tg_username');
   if (getToken() && existing) return existing;
 
+  let error = null;
   while (true) {
-    const username = prompt('Enter username (3–32 chars):');
-    if (!username) return null;
-    const password = prompt('Enter password (min 6 chars):');
-    if (!password) return null;
+    const { username, password } = await showLoginForm({ error });
 
     try {
       const res = await fetch(`${API_BASE_URL}api/login-or-create`, {
@@ -51,10 +51,9 @@ export async function login() {
         localStorage.setItem('tg_username', data.username);
         return data.username;
       }
-      alert(data.error || 'Login failed. Please try again.');
+      error = data.error || 'Login failed. Please try again.';
     } catch {
-      alert('Could not reach the server. Is it running?');
-      return null;
+      error = 'Could not reach the server. Is it running?';
     }
   }
 }

@@ -1,6 +1,6 @@
 import { correctSignals, correctSignalsTest, USE_TEST_SIGNALS } from '../data/correctSignals.js';
 import { generateDistractors } from '../data/distractors.js';
-import { injectNavButtons } from '../shared.js';
+import { injectNavButtons, palette } from '../shared.js';
 
 const HoppyTrain = {
   start(line, user, { onWin, onLose }) {
@@ -8,13 +8,24 @@ const HoppyTrain = {
     const app = document.getElementById('app');
     app.innerHTML = '';
     injectNavButtons(() => window.location.reload());
+    const pal = palette();
     const canvas = document.createElement('canvas');
     canvas.width = 700;
     canvas.height = 400;
-    canvas.style.display = 'block';
-    canvas.style.margin = '0 auto';
+    canvas.className = 'game-canvas';
     app.appendChild(canvas);
     const ctx = canvas.getContext('2d');
+
+    // Draw text with a chunky Balatro-style outline.
+    function outlinedText(text, x, y, font, fill) {
+      ctx.font = font;
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = 6;
+      ctx.strokeStyle = pal.outline;
+      ctx.strokeText(text, x, y);
+      ctx.fillStyle = fill;
+      ctx.fillText(text, x, y);
+    }
 
     // Game settings
     const GRAVITY = 0.125;
@@ -22,7 +33,7 @@ const HoppyTrain = {
     const PLAYER_SIZE = 40;
     const BOX_WIDTH = 120;
     const BOX_SPEED = 1.5;
-    const WORD_FONT = '20px Segoe UI';
+    const WORD_FONT = '700 20px "Pixelify Sans", sans-serif';
     const GROUND_HEIGHT = 30;
 
     // Signals
@@ -30,7 +41,7 @@ const HoppyTrain = {
     let selectedLine = line;
     // Safety: check for missing/empty data
     if (!activeCorrectSignals[selectedLine] || !Array.isArray(activeCorrectSignals[selectedLine]) || activeCorrectSignals[selectedLine].length === 0) {
-      app.innerHTML = '<div style="color:red;text-align:center;margin-top:40px;">No correct signals found for this line.<br>Please check your data.</div>';
+      app.innerHTML = '<div class="game-message">No correct signals found for this line.<br>Please check your data.</div>';
       return;
     }
     let signalIndex = 0;
@@ -75,12 +86,12 @@ const HoppyTrain = {
     }
     function drawPlayer() {
       ctx.save();
-      ctx.fillStyle = '#ffb300';
+      ctx.fillStyle = pal.gold;
       ctx.beginPath();
       ctx.arc(player.x, player.y, player.size / 2, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = '#333';
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = pal.outline;
+      ctx.lineWidth = 4;
       ctx.stroke();
       ctx.restore();
     }
@@ -89,20 +100,19 @@ const HoppyTrain = {
         if (!box.visible) return;
         ctx.save();
         if (box.flashRed === undefined) box.flashRed = 0;
-        if (box.flashRed > 0 || box.permanentRed) {
-          ctx.fillStyle = '#e53935';
-        } else {
-          ctx.fillStyle = '#4caf50';
-        }
-        ctx.fillRect(box.x, box.y, box.width, box.height);
-        ctx.strokeStyle = '#222';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(box.x, box.y, box.width, box.height);
-        ctx.fillStyle = '#fff';
-        ctx.font = WORD_FONT;
+        const inset = 6;
+        const bx = box.x + inset, by = box.y + inset;
+        const bw = box.width - inset * 2, bh = box.height - inset * 2;
+        ctx.fillStyle = (box.flashRed > 0 || box.permanentRed) ? pal.red : pal.green;
+        ctx.strokeStyle = pal.outline;
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.roundRect(bx, by, bw, bh, 12);
+        ctx.fill();
+        ctx.stroke();
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(box.word, box.x + box.width / 2, box.y + box.height / 2);
+        outlinedText(box.word, box.x + box.width / 2, box.y + box.height / 2, WORD_FONT, pal.creamOnDark);
         ctx.restore();
         if (box.flashRed > 0) {
           box.flashRed--;
@@ -112,9 +122,9 @@ const HoppyTrain = {
     }
     function drawScore() {
       ctx.save();
-      ctx.fillStyle = '#333';
-      ctx.font = '24px Segoe UI';
-      ctx.fillText('Score: ' + score, 70, 40);
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
+      outlinedText('Score: ' + score, 70, 42, '700 26px "Pixelify Sans", sans-serif', pal.gold);
       ctx.restore();
     }
     function drawHearts() {
@@ -131,10 +141,10 @@ const HoppyTrain = {
         ctx.bezierCurveTo(x, y + 18, x + 20, y + 10, x + 15, y - 5);
         ctx.bezierCurveTo(x + 10, y - 18, x, y - 8, x, y);
         ctx.closePath();
-        ctx.fillStyle = '#e53935';
+        ctx.fillStyle = pal.red;
         ctx.fill();
-        ctx.strokeStyle = '#b71c1c';
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = pal.outline;
+        ctx.lineWidth = 2.5;
         ctx.stroke();
         ctx.restore();
       }
@@ -247,9 +257,18 @@ const HoppyTrain = {
     }
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // Felt playfield + a darker rail bed along the bottom.
       ctx.save();
-      ctx.fillStyle = '#8d6e63';
+      ctx.fillStyle = pal.felt;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = pal.feltDeep;
       ctx.fillRect(0, canvas.height - GROUND_HEIGHT, canvas.width, GROUND_HEIGHT);
+      ctx.strokeStyle = pal.outline;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(0, canvas.height - GROUND_HEIGHT);
+      ctx.lineTo(canvas.width, canvas.height - GROUND_HEIGHT);
+      ctx.stroke();
       ctx.restore();
       drawPlayer();
       drawBoxes();

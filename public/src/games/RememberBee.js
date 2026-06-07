@@ -1,5 +1,5 @@
 import signals from '../data/signals.js';
-import { injectNavButtons } from '../shared.js';
+import { injectNavButtons, showToast } from '../shared.js';
 
 const MAX_HEALTH = 3;
 
@@ -15,19 +15,18 @@ const RememberBee = {
     // Health display
     const healthDisplay = document.createElement('div');
     healthDisplay.id = 'healthDisplay';
-    healthDisplay.style.fontSize = '2rem';
-    healthDisplay.style.marginBottom = '10px';
+    healthDisplay.className = 'rb-health';
     container.appendChild(healthDisplay);
     // User entry display
     const userEntryDisplay = document.createElement('p');
     userEntryDisplay.id = 'userEntryDisplay';
     container.appendChild(userEntryDisplay);
-    // Progress bar
+    // Progress bar (fill is the ::after driven by --progress; text is overlaid)
     const progressBar = document.createElement('div');
     progressBar.id = 'progressBar';
-    progressBar.style.height = '20px';
-    progressBar.style.background = '#eee';
-    progressBar.style.margin = '10px 0';
+    const progressBarText = document.createElement('span');
+    progressBarText.id = 'progressBarText';
+    progressBar.appendChild(progressBarText);
     container.appendChild(progressBar);
     // Keypad
     const keypad = document.createElement('div');
@@ -55,8 +54,8 @@ const RememberBee = {
     function updateProgressBar() {
       const total = signalList.length;
       const current = Math.min(currentSignalIndex, total);
-      progressBar.style.width = Math.round((current / total) * 100) + '%';
-      progressBar.textContent = `${current} / ${total}`;
+      progressBar.style.setProperty('--progress', Math.round((current / total) * 100) + '%');
+      progressBarText.textContent = `${current} / ${total}`;
     }
     function updateHealthDisplay() {
       healthDisplay.innerHTML = '❤'.repeat(health) + '<span style="color:#ccc">' + '❤'.repeat(MAX_HEALTH - health) + '</span>';
@@ -77,11 +76,11 @@ const RememberBee = {
         health--;
         updateHealthDisplay();
         if (health > 0) {
-          alert(`Incorrect! The correct answer was: ${currentSignal}\nYou have ${health} heart${health === 1 ? '' : 's'} left.`);
+          showToast(`Nope — it was ${currentSignal}. ${health} heart${health === 1 ? '' : 's'} left.`, { tone: 'red' });
           userInput = '';
           updateUserEntryDisplay();
         } else {
-          alert(`Incorrect! The correct answer was: ${currentSignal}\nNo hearts left. Restarting level.`);
+          showToast(`Out of hearts! It was ${currentSignal}. Restarting…`, { tone: 'red', duration: 1800 });
           currentSignalIndex = 0;
           score = 0;
           health = MAX_HEALTH;

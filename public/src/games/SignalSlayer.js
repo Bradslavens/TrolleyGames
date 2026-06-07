@@ -1,19 +1,30 @@
 import { correctSignals, correctSignalsTest, USE_TEST_SIGNALS } from '../data/correctSignals.js';
 import { generateDistractors } from '../data/distractors.js';
-import { injectNavButtons } from '../shared.js';
+import { injectNavButtons, palette } from '../shared.js';
 
 const SignalSlayer = {
   start(line, user, { onWin, onLose }) {
     const app = document.getElementById('app');
     app.innerHTML = '';
     injectNavButtons(() => window.location.reload());
+    const pal = palette();
     const canvas = document.createElement('canvas');
     canvas.width = 700;
     canvas.height = 400;
-    canvas.style.display = 'block';
-    canvas.style.margin = '0 auto';
+    canvas.className = 'game-canvas';
     app.appendChild(canvas);
     const ctx = canvas.getContext('2d');
+
+    // Draw text with a chunky Balatro-style outline.
+    function outlinedText(text, x, y, font, fill) {
+      ctx.font = font;
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = 6;
+      ctx.strokeStyle = pal.outline;
+      ctx.strokeText(text, x, y);
+      ctx.fillStyle = fill;
+      ctx.fillText(text, x, y);
+    }
     // Game constants
     const TRACKS = 3;
     const TRACK_WIDTH = canvas.width / TRACKS;
@@ -95,54 +106,69 @@ const SignalSlayer = {
     }
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      // Draw tracks
-      ctx.strokeStyle = '#888';
-      ctx.lineWidth = 4;
+      // Felt playfield
+      ctx.fillStyle = pal.felt;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // Draw track separators
+      ctx.strokeStyle = pal.feltDeep;
+      ctx.lineWidth = 6;
       for (let i = 1; i < TRACKS; i++) {
         ctx.beginPath();
         ctx.moveTo(i * TRACK_WIDTH, 0);
         ctx.lineTo(i * TRACK_WIDTH, canvas.height);
         ctx.stroke();
       }
-      // Draw signals
+      // Draw signals as cream cards
+      const sigFont = '700 ' + Math.max(16, Math.floor(SIGNAL_HEIGHT * 0.32)) + 'px "Pixelify Sans", sans-serif';
       signalRows.forEach(row => {
         row.signals.forEach(signal => {
           const x = signal.track * TRACK_WIDTH + 10;
-          ctx.fillStyle = '#fff';
-          ctx.fillRect(x, row.y, SIGNAL_WIDTH, SIGNAL_HEIGHT);
-          ctx.strokeStyle = '#333';
-          ctx.strokeRect(x, row.y, SIGNAL_WIDTH, SIGNAL_HEIGHT);
-          ctx.fillStyle = '#222';
-          ctx.font = Math.max(16, Math.floor(SIGNAL_HEIGHT * 0.35)) + 'px sans-serif';
+          ctx.fillStyle = pal.cream;
+          ctx.strokeStyle = pal.outline;
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.roundRect(x, row.y, SIGNAL_WIDTH, SIGNAL_HEIGHT, 10);
+          ctx.fill();
+          ctx.stroke();
+          ctx.fillStyle = pal.ink;
+          ctx.font = sigFont;
           ctx.textAlign = 'center';
-          ctx.fillText(signal.name, x + SIGNAL_WIDTH / 2, row.y + SIGNAL_HEIGHT / 2 + 6);
+          ctx.textBaseline = 'middle';
+          ctx.fillText(signal.name, x + SIGNAL_WIDTH / 2, row.y + SIGNAL_HEIGHT / 2);
         });
       });
-      // Draw train
+      // Draw train (red body + cream window)
       const x = playerTrack * TRACK_WIDTH + (TRACK_WIDTH - TRAIN_WIDTH * 5) / 2;
-      ctx.fillStyle = 'red';
-      ctx.fillRect(x, TRAIN_Y - (TRAIN_HEIGHT * 4), TRAIN_WIDTH * 5, TRAIN_HEIGHT * 5);
-      ctx.strokeStyle = '#000';
-      ctx.strokeRect(x, TRAIN_Y - (TRAIN_HEIGHT * 4), TRAIN_WIDTH * 5, TRAIN_HEIGHT * 5);
-      ctx.fillStyle = '#fff';
-      ctx.fillRect(x + TRAIN_WIDTH, TRAIN_Y - (TRAIN_HEIGHT * 3), TRAIN_WIDTH * 3, TRAIN_HEIGHT * 2);
+      ctx.fillStyle = pal.red;
+      ctx.strokeStyle = pal.outline;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.roundRect(x, TRAIN_Y - (TRAIN_HEIGHT * 4), TRAIN_WIDTH * 5, TRAIN_HEIGHT * 5, 8);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = pal.creamOnDark;
+      ctx.beginPath();
+      ctx.roundRect(x + TRAIN_WIDTH, TRAIN_Y - (TRAIN_HEIGHT * 3), TRAIN_WIDTH * 3, TRAIN_HEIGHT * 2, 4);
+      ctx.fill();
       // Draw score
-      ctx.fillStyle = '#222';
-      ctx.font = '20px sans-serif';
       ctx.textAlign = 'left';
-      ctx.fillText('Score: ' + score, 10, 30);
+      ctx.textBaseline = 'alphabetic';
+      outlinedText('Score: ' + score, 12, 34, '700 24px "Pixelify Sans", sans-serif', pal.gold);
       // Game over overlay
       if (gameOver) {
         ctx.save();
-        ctx.fillStyle = 'rgba(0,0,0,0.7)';
+        ctx.fillStyle = 'rgba(18,60,58,0.82)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#fff';
-        ctx.font = '36px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         const centerX = canvas.width / 2;
         const centerY = canvas.height / 2;
-        ctx.fillText(gameWon ? 'Congratulations!' : 'Game Over!', centerX, centerY);
+        outlinedText(gameWon ? 'Congratulations!' : 'Game Over!', centerX, centerY,
+          '700 40px "Pixelify Sans", sans-serif', gameWon ? pal.gold : pal.red);
+        if (!gameWon) {
+          outlinedText('Press Enter to retry', centerX, centerY + 44,
+            '700 18px "Pixelify Sans", sans-serif', pal.creamOnDark);
+        }
         ctx.restore();
       }
     }
