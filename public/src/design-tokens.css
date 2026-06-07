@@ -1,0 +1,106 @@
+/* ============================================================
+   TrolleyGames — "Balatro" Design Tokens
+   Inspired by Balatro: deep teal felt table, chunky pixel type
+   with thick dark outlines, cream playing-card panels with fat
+   borders + drop shadows, saturated candy buttons with beveled
+   bottoms, and the chip-blue / mult-red / money-gold palette.
+   Components reference these vars only.
+   ============================================================ */
+
+:root {
+  /* --- Type (chunky pixel display, like m6x11) -------------- */
+  --font-display: 'Pixelify Sans', 'Segoe UI', system-ui, sans-serif;
+  --font-base: 'Pixelify Sans', 'Segoe UI', system-ui, sans-serif;
+
+  /* --- Type scale (16px base, generous for pixel legibility)  */
+  --text-xs: 0.875rem;    /* 14 */
+  --text-sm: 1rem;        /* 16 */
+  --text-base: 1.125rem;  /* 18 */
+  --text-lg: 1.375rem;    /* 22 */
+  --text-xl: 1.75rem;     /* 28 */
+  --text-2xl: 2.25rem;    /* 36 */
+  --text-3xl: 3rem;       /* 48 */
+  --text-4xl: 4rem;       /* 64 */
+
+  --weight-medium: 500;
+  --weight-bold: 700;
+  --leading-tight: 1.0;
+  --leading-normal: 1.4;
+  --tracking-wide: 0.02em;
+
+  /* --- Color: felt table & ink ------------------------------ */
+  --felt: #20655e;          /* deep teal-green felt            */
+  --felt-deep: #123c3a;     /* vignette edge                   */
+  --felt-swirl: #2f8a6f;    /* swirl highlight                 */
+  --card-cream: #f4ead2;    /* playing-card face               */
+  --card-cream-2: #e7d8b4;  /* card inner / inset              */
+  --ink: #2a2018;           /* dark brown text on cream        */
+  --ink-soft: #6b5b46;      /* muted text on cream             */
+  --cream-on-dark: #f6eedb; /* text on felt                    */
+  --outline: #17110b;       /* near-black borders + text edge  */
+
+  /* --- Color: Balatro accents ------------------------------- */
+  --chip-blue: #0093ff;
+  --chip-blue-d: #0061c4;   /* bevel / darker edge             */
+  --mult-red: #fe5f55;
+  --mult-red-d: #c8392f;
+  --money-gold: #f5b912;
+  --money-gold-d: #c4860a;
+  --green: #4bc06f;
+  --green-d: #2f8f4c;
+  --purple: #8a5fd4;
+
+  /* line identities mapped to Balatro chips */
+  --line-blue: var(--chip-blue);
+  --line-blue-d: var(--chip-blue-d);
+  --line-orange: #ff8b3d;
+  --line-orange-d: #d2641c;
+  --line-green: var(--green);
+  --line-green-d: var(--green-d);
+
+  --danger: var(--mult-red);
+  --danger-d: var(--mult-red-d);
+
+  /* --- Spacing (4px base) ----------------------------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* --- Radius (rounded card corners) ------------------------ */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-pill: 999px;
+
+  /* --- Borders & shadows (fat, tactile) --------------------- */
+  --border-w: 4px;
+  --border: var(--border-w) solid var(--outline);
+  --shadow-card: 0 10px 0 rgba(0, 0, 0, 0.28), 0 16px 26px rgba(0, 0, 0, 0.40);
+  --shadow-soft: 0 6px 18px rgba(0, 0, 0, 0.35);
+  /* candy-button bottom lip + drop */
+  --bevel: inset 0 -6px 0 rgba(0, 0, 0, 0.30);
+  --shadow-btn: 0 5px 0 rgba(0, 0, 0, 0.30), 0 8px 14px rgba(0, 0, 0, 0.30);
+
+  /* heavy pixel-style text outline (8-way) + drop */
+  --text-outline:
+    -2px -2px 0 var(--outline),  2px -2px 0 var(--outline),
+    -2px  2px 0 var(--outline),  2px  2px 0 var(--outline),
+     0   -2px 0 var(--outline),  0    2px 0 var(--outline),
+    -2px  0   0 var(--outline),  2px  0   0 var(--outline),
+     0    5px 0 rgba(0, 0, 0, 0.35);
+
+  /* --- Motion ----------------------------------------------- */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 110ms;
+  --dur-base: 200ms;
+  --dur-slow: 400ms;
+
+  /* --- Layout ----------------------------------------------- */
+  --app-max: 1040px;
+}

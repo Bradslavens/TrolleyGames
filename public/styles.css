@@ -1,95 +1,300 @@
-body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; margin: 0; }
-#app { max-width: 900px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 32px; }
-.menu {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 32px;
-  justify-content: center;
-  margin-top: 32px;
-}
-.line-block {
-  background: #f0f4f8;
-  border-radius: 8px;
-  box-shadow: 0 1px 4px #0001;
-  padding: 20px 16px 16px 16px;
-  min-width: 220px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.line-block strong {
-  font-size: 1.1em;
-  margin-bottom: 12px;
-  color: #1976d2;
-}
-.line-block button {
-  margin: 4px 0;
-  padding: 8px 18px;
-  border: none;
-  border-radius: 6px;
-  background: #1976d2;
-  color: #fff;
-  font-size: 1em;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-}
-.line-block button:disabled {
-  background: #b0bec5;
-  color: #eee;
-  cursor: not-allowed;
-}
-.line-block button:not(:disabled):hover {
-  background: #1565c0;
+/* ============================================================
+   TrolleyGames — UI built against design-tokens.css
+   Aesthetic: "Balatro". Deep teal felt with a slow paint-swirl,
+   chunky pixel type with thick outlines, cream playing-card
+   panels with fat borders + drop shadows, candy buttons with
+   beveled bottoms, and idle bob / hover-wiggle juice.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&display=swap');
+@import url('./src/design-tokens.css');
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  font-family: var(--font-base);
+  color: var(--cream-on-dark);
+  background-color: var(--felt);
+  margin: 0;
+  line-height: var(--leading-normal);
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
-/* RememberBee Game Styles */
+/* Slow paint-swirl behind everything + vignette — the felt table. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: -40%;
+  z-index: -2;
+  background:
+    conic-gradient(from 0deg,
+      var(--felt-deep), var(--felt-swirl), var(--felt),
+      var(--felt-deep), var(--felt-swirl), var(--felt-deep));
+  filter: blur(70px) saturate(1.1);
+  opacity: 0.55;
+  animation: tg-swirl 48s linear infinite;
+}
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(120% 90% at 50% 30%, transparent 40%, rgba(0, 0, 0, 0.55) 100%);
+  pointer-events: none;
+}
+@keyframes tg-swirl { to { transform: rotate(360deg); } }
+
+#app {
+  max-width: var(--app-max);
+  margin: 0 auto;
+  padding: var(--space-7) var(--space-6) var(--space-8);
+}
+
+/* ---------- Title (red letters, cream-outlined, Balatro logo) */
+#app h1 {
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-4xl);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-wide);
+  margin: var(--space-5) 0 0;
+  color: var(--mult-red);
+  text-shadow:
+    -3px -3px 0 var(--card-cream),  3px -3px 0 var(--card-cream),
+    -3px  3px 0 var(--card-cream),  3px  3px 0 var(--card-cream),
+     0   -3px 0 var(--card-cream),  0    3px 0 var(--card-cream),
+    -3px  0   0 var(--card-cream),  3px  0   0 var(--card-cream),
+     0    9px 0 rgba(0, 0, 0, 0.40);
+}
+/* Gold "score" chip badge above the title. */
+#app h1::before {
+  content: '★ LEARN THE LINES ★';
+  display: block;
+  width: fit-content;
+  margin: 0 auto var(--space-4);
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+  color: var(--outline);
+  background: var(--money-gold);
+  border: var(--border);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--bevel), var(--shadow-soft);
+  padding: var(--space-2) var(--space-4);
+  text-shadow: none;
+}
+#app > p {
+  text-align: center;
+  max-width: 44ch;
+  margin: var(--space-4) auto var(--space-7);
+  font-size: var(--text-base);
+  color: var(--cream-on-dark);
+  opacity: 0.85;
+}
+
+/* ---------- Menu grid --------------------------------------- */
+.menu {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(252px, 1fr));
+  gap: var(--space-6);
+}
+
+/* ---------- Playing-card line panels ----------------------- */
+.line-block {
+  --suit: var(--ink-soft);
+  --suit-d: var(--outline);
+  position: relative;
+  background: var(--card-cream);
+  border: var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  color: var(--ink);
+  transform-origin: center bottom;
+  animation: tg-bob 5s var(--ease-out) infinite;
+}
+/* Stagger the idle bob so the table feels alive. */
+.line-block:nth-child(odd)  { animation-delay: -2.5s; }
+.line-block:nth-child(3n)   { animation-delay: -1.2s; }
+@keyframes tg-bob {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-5px) rotate(-0.4deg); }
+}
+.line-block:hover {
+  animation-play-state: paused;
+  transform: translateY(-8px) rotate(1.2deg) scale(1.02);
+  transition: transform var(--dur-base) var(--ease-spring);
+  z-index: 2;
+}
+
+/* Color-code the "suit" by line family. */
+.line-block:has(strong[data-line^="Blue"])   { --suit: var(--line-blue);   --suit-d: var(--line-blue-d); }
+.line-block:has(strong[data-line^="Orange"]) { --suit: var(--line-orange); --suit-d: var(--line-orange-d); }
+.line-block:has(strong[data-line^="Green"])  { --suit: var(--line-green);  --suit-d: var(--line-green-d); }
+
+/* Line name = colored suit banner across the card top. */
+.line-block strong {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-lg);
+  line-height: 1.05;
+  color: var(--cream-on-dark);
+  background: var(--suit);
+  border: var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--bevel);
+  padding: var(--space-3) var(--space-3);
+  margin-bottom: var(--space-1);
+  text-shadow: var(--text-outline);
+}
+
+/* ---------- Candy buttons (shared) ------------------------- */
+.line-block button,
+.tg-btn {
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-wide);
+  text-align: center;
+  color: var(--cream-on-dark);
+  background: var(--card-cream-2);
+  border: var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--bevel), var(--shadow-btn);
+  padding: var(--space-3) var(--space-4);
+  cursor: pointer;
+  text-shadow: var(--text-outline);
+  transition: transform var(--dur-fast) var(--ease-spring),
+              box-shadow var(--dur-fast) var(--ease-out),
+              filter var(--dur-fast) var(--ease-out);
+}
+/* Locked levels look like cream chips (no candy, no glow). */
+.line-block button {
+  color: var(--ink-soft);
+  background: var(--card-cream-2);
+  text-shadow: none;
+  box-shadow: var(--bevel);
+}
+/* Enabled levels become the line-colored candy buttons. */
+.line-block button:not(:disabled) {
+  color: var(--cream-on-dark);
+  background: var(--suit);
+  text-shadow: var(--text-outline);
+  box-shadow: var(--bevel), var(--shadow-btn);
+}
+/* Next unlocked level pops in money-gold — the "play me" button. */
+.line-block button:not(:disabled):first-of-type {
+  background: var(--money-gold);
+}
+.line-block button:not(:disabled):first-of-type::after { content: ' ▶'; }
+
+/* Juicy hover/press for all candy buttons. */
+.line-block button:not(:disabled):hover,
+.tg-btn:hover {
+  transform: translateY(-2px) rotate(-1.5deg) scale(1.05);
+  filter: brightness(1.06);
+}
+.line-block button:not(:disabled):active,
+.tg-btn:active {
+  transform: translateY(3px) scale(0.98);
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.25);
+}
+.line-block button:focus-visible,
+.tg-btn:focus-visible {
+  outline: 3px solid var(--money-gold);
+  outline-offset: 3px;
+}
+.line-block button:disabled { cursor: not-allowed; opacity: 0.85; }
+
+/* ---------- Nav bar (Home blue / Logout red) --------------- */
+#tg-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: var(--app-max);
+  margin: 0 auto var(--space-6);
+}
+#tg-nav .tg-btn { background: var(--chip-blue); }
+#tg-nav .tg-btn--danger { background: var(--danger); }
+
+/* ---------- Entrance ---------------------------------------- */
+@keyframes tg-deal {
+  from { opacity: 0; transform: translateY(26px) rotate(-4deg) scale(0.9); }
+  to   { opacity: 1; transform: translateY(0) rotate(0) scale(1); }
+}
+.menu .line-block { animation: tg-deal var(--dur-slow) var(--ease-spring) both, tg-bob 5s var(--ease-out) infinite; }
+.menu .line-block:nth-child(2) { animation-delay: 60ms, 0s; }
+.menu .line-block:nth-child(3) { animation-delay: 120ms, 0s; }
+.menu .line-block:nth-child(4) { animation-delay: 180ms, 0s; }
+.menu .line-block:nth-child(5) { animation-delay: 240ms, 0s; }
+.menu .line-block:nth-child(6) { animation-delay: 300ms, 0s; }
+.menu .line-block:nth-child(7) { animation-delay: 360ms, 0s; }
+.menu .line-block:nth-child(8) { animation-delay: 420ms, 0s; }
+
+/* ============================================================
+   RememberBee (keypad) — cream card panel, chip keys.
+   ============================================================ */
 .rememberbee-container {
-  background: linear-gradient(135deg, #222 0%, #444 100%);
-  border-radius: 16px;
-  box-shadow: 0 4px 24px #0006;
-  padding: 32px 24px 24px 24px;
+  background: var(--card-cream);
+  border: var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-6) var(--space-5) var(--space-5);
   max-width: 420px;
-  margin: 40px auto;
-  color: #fff;
+  margin: var(--space-7) auto;
+  color: var(--ink);
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 #userEntryDisplay {
-  font-size: 2.2em;
-  letter-spacing: 0.15em;
-  margin: 18px 0 10px 0;
-  color: #ffe082;
-  text-shadow: 0 2px 8px #000a;
-  min-height: 1.5em;
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-3xl);
+  letter-spacing: 0.12em;
+  margin: var(--space-4) 0 var(--space-2);
+  color: var(--mult-red);
+  text-shadow: var(--text-outline);
+  min-height: 1.4em;
 }
 .keypad {
   display: grid;
-  grid-template-columns: repeat(3, 60px);
-  gap: 12px;
-  margin: 24px 0 0 0;
+  grid-template-columns: repeat(3, 68px);
+  gap: var(--space-3);
+  margin-top: var(--space-5);
 }
 .keypad button {
-  background: linear-gradient(180deg, #1976d2 0%, #0d47a1 100%);
-  color: #fff;
-  font-size: 1.3em;
-  border: none;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px #0003;
-  padding: 16px 0;
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-xl);
+  color: var(--cream-on-dark);
+  background: var(--chip-blue);
+  border: var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--bevel), var(--shadow-btn);
+  padding: var(--space-3) 0;
   cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
+  text-shadow: var(--text-outline);
+  transition: transform var(--dur-fast) var(--ease-spring), filter var(--dur-fast) var(--ease-out);
 }
-.keypad button:active {
-  background: #1565c0;
-  transform: scale(0.97);
-}
+.keypad button:hover { transform: translateY(-2px) scale(1.06); filter: brightness(1.06); }
+.keypad button:active { transform: translateY(3px) scale(0.96); box-shadow: inset 0 -2px 0 rgba(0,0,0,0.25); }
+
+/* Progress bar — gold fill in a cream track. */
 #progressBar {
   width: 100%;
-  height: 18px;
-  background: #333;
-  border-radius: 8px;
-  margin: 18px 0 8px 0;
+  height: 20px;
+  background: var(--card-cream-2);
+  border: var(--border);
+  border-radius: var(--radius-pill);
+  margin: var(--space-4) 0 var(--space-2);
   overflow: hidden;
   position: relative;
 }
@@ -97,10 +302,10 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; margin: 
   content: '';
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, #ffe082 0%, #ffd600 100%);
+  background: var(--money-gold);
   width: var(--progress, 0%);
-  transition: width 0.3s;
-  border-radius: 8px;
+  transition: width var(--dur-slow) var(--ease-out);
+  border-radius: var(--radius-pill);
   position: absolute;
   left: 0; top: 0;
 }
@@ -108,10 +313,26 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; margin: 
   position: absolute;
   width: 100%;
   text-align: center;
-  color: #222;
-  font-weight: bold;
-  top: 0;
-  left: 0;
-  font-size: 1em;
-  line-height: 18px;
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  color: var(--ink);
+  top: 0; left: 0;
+  font-size: var(--text-xs);
+  line-height: 20px;
+  z-index: 1;
+}
+
+/* ---------- Reduced motion --------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ---------- Small screens ----------------------------------- */
+@media (max-width: 600px) {
+  #app { padding: var(--space-5) var(--space-4) var(--space-7); }
+  #app h1 { font-size: var(--text-3xl); }
+  .menu { grid-template-columns: 1fr; gap: var(--space-5); }
 }
