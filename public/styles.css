@@ -1,95 +1,255 @@
-body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; margin: 0; }
-#app { max-width: 900px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 32px; }
-.menu {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 32px;
-  justify-content: center;
-  margin-top: 32px;
-}
-.line-block {
-  background: #f0f4f8;
-  border-radius: 8px;
-  box-shadow: 0 1px 4px #0001;
-  padding: 20px 16px 16px 16px;
-  min-width: 220px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.line-block strong {
-  font-size: 1.1em;
-  margin-bottom: 12px;
-  color: #1976d2;
-}
-.line-block button {
-  margin: 4px 0;
-  padding: 8px 18px;
-  border: none;
-  border-radius: 6px;
-  background: #1976d2;
-  color: #fff;
-  font-size: 1em;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-}
-.line-block button:disabled {
-  background: #b0bec5;
-  color: #eee;
-  cursor: not-allowed;
-}
-.line-block button:not(:disabled):hover {
-  background: #1565c0;
+/* ============================================================
+   TrolleyGames — UI built against design-tokens.css
+   Aesthetic: Neo-brutalist transit. Thick ink borders, hard
+   offset shadows (no blur), flat color blocks, chunky type,
+   tactile press interactions.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('./src/design-tokens.css');
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  font-family: var(--font-mono);
+  color: var(--ink);
+  background-color: var(--paper);
+  /* Subtle blueprint grid — quiet texture, not noise. */
+  background-image:
+    linear-gradient(var(--paper-2) 1px, transparent 1px),
+    linear-gradient(90deg, var(--paper-2) 1px, transparent 1px);
+  background-size: 24px 24px;
+  margin: 0;
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
 }
 
-/* RememberBee Game Styles */
+#app {
+  max-width: var(--app-max);
+  margin: var(--space-7) auto;
+  background: var(--paper);
+  border: var(--border);
+  border-radius: var(--radius-0);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-6);
+}
+
+/* ---------- Headings ---------------------------------------- */
+#app h1 {
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-4xl);
+  line-height: var(--leading-tight);
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  margin: 0 0 var(--space-2);
+}
+/* Accent underline bar beneath the title — a deliberate marker. */
+#app h1::after {
+  content: '';
+  display: block;
+  width: 96px;
+  height: 10px;
+  margin-top: var(--space-3);
+  background: var(--accent);
+  border: var(--border);
+}
+#app > p {
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--ink-soft);
+  margin: 0 0 var(--space-5);
+}
+
+/* ---------- Menu grid --------------------------------------- */
+.menu {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-5);
+  margin-top: var(--space-6);
+}
+
+/* ---------- Line cards -------------------------------------- */
+.line-block {
+  background: var(--paper);
+  border: var(--border);
+  border-radius: var(--radius-0);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-5) var(--space-4) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  transition: transform var(--dur-base) var(--ease-snap),
+              box-shadow var(--dur-base) var(--ease-snap);
+}
+.line-block:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Line name reads as a brutalist tag chip. */
+.line-block strong {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-base);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--paper);
+  background: var(--ink);
+  border: var(--border);
+  padding: var(--space-2) var(--space-3);
+  margin: 0 0 var(--space-3);
+}
+/* Color-code the tag by line family. */
+.line-block strong[data-line^="Blue"]   { background: var(--line-blue); }
+.line-block strong[data-line^="Orange"] { background: var(--line-orange); }
+.line-block strong[data-line^="Green"]  { background: var(--line-green); }
+
+/* ---------- Buttons (shared brutalist control) ------------- */
+.line-block button,
+.tg-btn {
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  text-align: left;
+  color: var(--ink);
+  background: var(--paper);
+  border: var(--border);
+  border-radius: var(--radius-1);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-3) var(--space-4);
+  cursor: pointer;
+  transition: transform var(--dur-fast) var(--ease-snap),
+              box-shadow var(--dur-fast) var(--ease-snap),
+              background var(--dur-fast) var(--ease-snap);
+}
+
+/* Hover: lift toward the cursor, deepen the shadow. */
+.line-block button:not(:disabled):hover,
+.tg-btn:hover {
+  background: var(--accent);
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Active: press INTO the shadow — the tactile signature move. */
+.line-block button:not(:disabled):active,
+.tg-btn:active {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 var(--ink);
+}
+
+/* Keyboard focus: loud accent ring, never removed silently. */
+.line-block button:focus-visible,
+.tg-btn:focus-visible {
+  outline: var(--border-w) solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* Locked levels: flat, no shadow, clearly inert. */
+.line-block button:disabled {
+  color: var(--disabled-ink);
+  background: var(--disabled);
+  border-color: var(--disabled-ink);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* ---------- Nav bar (Home / Logout) ------------------------- */
+#tg-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: var(--app-max);
+  margin: 0 auto var(--space-5);
+}
+#tg-nav .tg-btn { text-align: center; }
+/* Logout = danger variant. */
+#tg-nav .tg-btn--danger { background: var(--danger); color: var(--paper); }
+#tg-nav .tg-btn--danger:hover { background: var(--danger); color: var(--paper); }
+
+/* ---------- Entrance motion --------------------------------- */
+@keyframes tg-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.menu .line-block { animation: tg-rise var(--dur-slow) var(--ease-snap) both; }
+.menu .line-block:nth-child(2) { animation-delay: 40ms; }
+.menu .line-block:nth-child(3) { animation-delay: 80ms; }
+.menu .line-block:nth-child(4) { animation-delay: 120ms; }
+.menu .line-block:nth-child(5) { animation-delay: 160ms; }
+.menu .line-block:nth-child(6) { animation-delay: 200ms; }
+.menu .line-block:nth-child(7) { animation-delay: 240ms; }
+.menu .line-block:nth-child(8) { animation-delay: 280ms; }
+
+/* ============================================================
+   RememberBee (keypad) — kept in shell pass since it's
+   CSS-class driven already. Other games styled in follow-up.
+   ============================================================ */
 .rememberbee-container {
-  background: linear-gradient(135deg, #222 0%, #444 100%);
-  border-radius: 16px;
-  box-shadow: 0 4px 24px #0006;
-  padding: 32px 24px 24px 24px;
+  background: var(--ink);
+  border: var(--border);
+  border-radius: var(--radius-0);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-6) var(--space-5) var(--space-5);
   max-width: 420px;
-  margin: 40px auto;
-  color: #fff;
+  margin: var(--space-7) auto;
+  color: var(--paper);
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 #userEntryDisplay {
-  font-size: 2.2em;
-  letter-spacing: 0.15em;
-  margin: 18px 0 10px 0;
-  color: #ffe082;
-  text-shadow: 0 2px 8px #000a;
+  font-family: var(--font-mono);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-3xl);
+  letter-spacing: var(--tracking-wider);
+  margin: var(--space-4) 0 var(--space-2);
+  color: var(--accent);
   min-height: 1.5em;
 }
 .keypad {
   display: grid;
-  grid-template-columns: repeat(3, 60px);
-  gap: 12px;
-  margin: 24px 0 0 0;
+  grid-template-columns: repeat(3, 64px);
+  gap: var(--space-3);
+  margin-top: var(--space-5);
 }
 .keypad button {
-  background: linear-gradient(180deg, #1976d2 0%, #0d47a1 100%);
-  color: #fff;
-  font-size: 1.3em;
-  border: none;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px #0003;
-  padding: 16px 0;
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-lg);
+  color: var(--ink);
+  background: var(--paper);
+  border: var(--border);
+  border-radius: var(--radius-1);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-4) 0;
   cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
+  transition: transform var(--dur-fast) var(--ease-snap),
+              box-shadow var(--dur-fast) var(--ease-snap),
+              background var(--dur-fast) var(--ease-snap);
 }
+.keypad button:hover { background: var(--accent); }
 .keypad button:active {
-  background: #1565c0;
-  transform: scale(0.97);
+  background: var(--accent);
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 var(--ink);
 }
+
+/* Progress bar — hard-edged, accent fill. */
 #progressBar {
   width: 100%;
-  height: 18px;
-  background: #333;
-  border-radius: 8px;
-  margin: 18px 0 8px 0;
+  height: 22px;
+  background: var(--paper-2);
+  border: var(--border);
+  border-radius: var(--radius-0);
+  margin: var(--space-4) 0 var(--space-2);
   overflow: hidden;
   position: relative;
 }
@@ -97,10 +257,9 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; margin: 
   content: '';
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, #ffe082 0%, #ffd600 100%);
+  background: var(--accent);
   width: var(--progress, 0%);
-  transition: width 0.3s;
-  border-radius: 8px;
+  transition: width var(--dur-slow) var(--ease-snap);
   position: absolute;
   left: 0; top: 0;
 }
@@ -108,10 +267,27 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; margin: 
   position: absolute;
   width: 100%;
   text-align: center;
-  color: #222;
-  font-weight: bold;
-  top: 0;
-  left: 0;
-  font-size: 1em;
-  line-height: 18px;
+  font-family: var(--font-mono);
+  font-weight: var(--weight-bold);
+  color: var(--ink);
+  top: 0; left: 0;
+  font-size: var(--text-sm);
+  line-height: 22px;
+  z-index: 1;
+}
+
+/* ---------- Reduced motion --------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ---------- Small screens ----------------------------------- */
+@media (max-width: 600px) {
+  #app { margin: var(--space-4); padding: var(--space-4); }
+  #app h1 { font-size: var(--text-3xl); }
+  .menu { grid-template-columns: 1fr; gap: var(--space-4); }
 }

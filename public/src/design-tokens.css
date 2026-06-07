@@ -1,0 +1,81 @@
+/* ============================================================
+   TrolleyGames — "Brutalist Transit" Design Tokens
+   Single source of truth. Components reference these vars only;
+   no raw hex / px values should live in styles.css.
+   ============================================================ */
+
+:root {
+  /* --- Type families ----------------------------------------
+     Display = chunky grotesque for headings/buttons.
+     Mono    = signal-code / numeric / label feel.            */
+  --font-display: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+
+  /* --- Type scale (1.25 modular, 16px base) ----------------- */
+  --text-xs: 0.75rem;    /* 12 */
+  --text-sm: 0.875rem;   /* 14 */
+  --text-base: 1rem;     /* 16 */
+  --text-lg: 1.25rem;    /* 20 */
+  --text-xl: 1.5625rem;  /* 25 */
+  --text-2xl: 1.953rem;  /* 31 */
+  --text-3xl: 2.441rem;  /* 39 */
+  --text-4xl: 3.052rem;  /* 49 */
+
+  --weight-regular: 400;
+  --weight-bold: 700;
+  --leading-tight: 1.05;
+  --leading-normal: 1.5;
+  --tracking-wide: 0.04em;
+  --tracking-wider: 0.12em;
+
+  /* --- Color: fixed neutrals -------------------------------- */
+  --paper: #f4f1ea;        /* warm off-white background      */
+  --paper-2: #ebe6da;      /* slightly deeper surface         */
+  --ink: #141414;          /* near-black, all borders/text    */
+  --ink-soft: #4a463d;     /* muted text                      */
+
+  /* --- Color: the ONE strong accent ------------------------- */
+  --accent: #ffd400;       /* signal yellow                   */
+  --accent-ink: #141414;   /* text that sits on accent        */
+
+  /* --- Color: functional line identities -------------------- */
+  --line-blue: #1a56db;
+  --line-orange: #f26419;
+  --line-green: #1e9e5a;
+
+  /* --- Color: status ---------------------------------------- */
+  --danger: #e23b2e;       /* logout / lose / out-of-hearts   */
+  --disabled: #c9c3b5;     /* locked controls                 */
+  --disabled-ink: #8a8475;
+
+  /* --- Spacing (4px base) ----------------------------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* --- Radius (brutalist-sharp, tiny softness for taps) ----- */
+  --radius-0: 0px;
+  --radius-1: 6px;
+  --radius-pill: 999px;
+
+  /* --- Borders & hard offset shadows (zero blur) ------------ */
+  --border-w: 3px;
+  --border: var(--border-w) solid var(--ink);
+  --shadow-sm: 3px 3px 0 var(--ink);
+  --shadow-md: 5px 5px 0 var(--ink);
+  --shadow-lg: 8px 8px 0 var(--ink);
+
+  /* --- Motion ----------------------------------------------- */
+  --ease-snap: cubic-bezier(0.2, 0.9, 0.3, 1);
+  --dur-fast: 90ms;
+  --dur-base: 160ms;
+  --dur-slow: 320ms;
+
+  /* --- Layout ----------------------------------------------- */
+  --app-max: 960px;
+}
