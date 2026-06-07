@@ -27,3 +27,9 @@ server/node_modules/
 server/*.db
 server/logs/
 server/.env
+
+# SQLite WAL-mode sidecar files
+*.db-shm
+*.db-wal
+*.sqlite-shm
+*.sqlite-wal

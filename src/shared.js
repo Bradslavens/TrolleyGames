@@ -80,6 +80,7 @@ export function injectNavButtons(onHome) {
   logoutBtn.onclick = function() {
     localStorage.removeItem('tg_logged_in');
     localStorage.removeItem('tg_username');
+    localStorage.removeItem('tg_token');
     window.location.reload();
   };
   nav.appendChild(logoutBtn);
