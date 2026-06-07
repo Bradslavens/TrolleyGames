@@ -8,6 +8,7 @@
     "dev": "cd server && node server.js",
     "start": "cd server && node server.js",
     "test": "cd server && npm test",
-    "test:watch": "cd server && npm run test:watch"
+    "test:watch": "cd server && npm run test:watch",
+    "gen:schematics": "node server/scripts/gen-schematics.mjs"
   }
 }
