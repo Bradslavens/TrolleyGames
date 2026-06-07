@@ -1,5 +1,5 @@
 import { correctSignals, correctSignalsTest, USE_TEST_SIGNALS } from '../data/correctSignals.js';
-import { incorrectSignals } from '../data/incorrectSignals.js';
+import { generateDistractors } from '../data/distractors.js';
 import { injectNavButtons } from '../shared.js';
 
 const SignalSlayer = {
@@ -36,12 +36,7 @@ const SignalSlayer = {
     // Generate a random signal row
     function randomSignalRow() {
       const correct = currentLineSignals[currentCorrectIndex];
-      const lineIncorrects = incorrectSignals[selectedLine] || [];
-      let incorrects = [];
-      while (incorrects.length < 2 && lineIncorrects.length > 0) {
-        let s = lineIncorrects[Math.floor(Math.random() * lineIncorrects.length)];
-        if (s !== correct && !incorrects.includes(s)) incorrects.push(s);
-      }
+      const incorrects = generateDistractors(correct, 2, { line: selectedLine });
       let tracks = [0, 1, 2];
       const correctTrack = tracks.splice(Math.floor(Math.random() * tracks.length), 1)[0];
       let signals = [];

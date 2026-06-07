@@ -9,6 +9,7 @@
 
 require('dotenv').config();
 
+const path = require('path');
 const express = require('express');
 const Database = require('better-sqlite3');
 const bcrypt = require('bcryptjs');
@@ -48,8 +49,31 @@ const app = express();
 app.set('trust proxy', 1); // correct client IPs behind Render's proxy (for rate-limit)
 
 // ---- Security middleware ----
-app.use(helmet());
+// Relax a few CSP directives:
+//  - style-src/img-src: the games legitimately use inline styles and data: imgs.
+//  - upgrade-insecure-requests is removed (set to null): helmet enables it by
+//    default, which forces subresources to load over https. Browsers exempt
+//    localhost, but on a plain-http LAN address (e.g. 192.168.x.x) it would
+//    upgrade main.js/styles.css to https and fail, blanking the page. We serve
+//    http locally/on the LAN; production sits behind Render's own https.
+// Everything else keeps helmet's defaults.
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        'style-src': ["'self'", "'unsafe-inline'"],
+        'img-src': ["'self'", 'data:'],
+        'upgrade-insecure-requests': null,
+      },
+    },
+  })
+);
 app.use(express.json({ limit: '10kb' })); // cap body size to blunt payload DoS
+
+// Serve the front-end (public/) so a single `node server.js` runs the whole app
+// locally on one origin. In production Render serves public/ as a separate
+// static site, so this is just a convenience and does no harm there.
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // CORS: allowlist from env (comma-separated) or sane local defaults.
 const allowedOrigins = (
@@ -73,12 +97,15 @@ app.use(
   })
 );
 
-// Rate limiters: strict on auth, looser on the rest.
+// Rate limiters: strict on auth, looser on the rest. Skipped under test so the
+// suite can fire many auth requests from one IP without tripping the limit.
+const skipInTest = () => process.env.NODE_ENV === 'test';
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 30, // 30 auth attempts per IP per 15 min
   standardHeaders: true,
   legacyHeaders: false,
+  skip: skipInTest,
   message: { error: 'Too many attempts, please try again later.' },
 });
 const apiLimiter = rateLimit({
@@ -86,6 +113,7 @@ const apiLimiter = rateLimit({
   max: 120,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: skipInTest,
 });
 app.use('/api/', apiLimiter);
 
@@ -251,6 +279,12 @@ app.get('/api/get-progress', requireAuth, (req, res) => {
 // Health check (handy for Render).
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// Only start listening when run directly (`node server.js`). When this module
+// is imported by tests we just export the app so supertest can drive it.
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
+module.exports = { app, db };
