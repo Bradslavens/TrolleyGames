@@ -1,4 +1,4 @@
-import { injectNavButtons } from '../shared.js';
+import { injectNavButtons, palette } from '../shared.js';
 import { lineSlug } from '../data/schematicLayout.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -19,20 +19,18 @@ const SchemaPro = {
     app.innerHTML = '';
     injectNavButtons(() => window.location.reload());
 
+    const pal = palette();
+
     const container = document.createElement('div');
     container.className = 'schemapro-container';
-    container.style.textAlign = 'center';
 
     const healthEl = document.createElement('div');
-    healthEl.style.fontSize = '1.6rem';
-    healthEl.style.marginBottom = '6px';
+    healthEl.className = 'sp-health';
     container.appendChild(healthEl);
 
     const promptEl = document.createElement('div');
     promptEl.id = 'signal-name';
-    promptEl.style.fontSize = '1.3rem';
-    promptEl.style.fontWeight = '600';
-    promptEl.style.margin = '6px 0 14px';
+    promptEl.className = 'sp-prompt';
     container.appendChild(promptEl);
 
     const svgWrap = document.createElement('div');
@@ -46,7 +44,7 @@ const SchemaPro = {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       schematic = await res.json();
     } catch (err) {
-      promptEl.style.color = '#c62828';
+      promptEl.classList.add('is-error');
       promptEl.textContent = `Could not load the schematic for "${line}".`;
       return;
     }
@@ -77,8 +75,9 @@ const SchemaPro = {
     track.setAttribute('y1', p1[1]);
     track.setAttribute('x2', p2[0]);
     track.setAttribute('y2', p2[1]);
-    track.setAttribute('stroke', '#9e9e9e');
-    track.setAttribute('stroke-width', '6');
+    track.setAttribute('stroke', pal.outline);
+    track.setAttribute('stroke-width', '8');
+    track.setAttribute('stroke-linecap', 'round');
     svg.appendChild(track);
 
     schematic.signals.forEach((sig) => {
@@ -89,18 +88,24 @@ const SchemaPro = {
       circle.setAttribute('cx', sig.x);
       circle.setAttribute('cy', sig.y);
       circle.setAttribute('r', '24');
-      circle.setAttribute('fill', '#1976d2');
-      circle.setAttribute('stroke', '#0d47a1');
-      circle.setAttribute('stroke-width', '3');
+      circle.setAttribute('fill', pal.blue);
+      circle.setAttribute('stroke', pal.outline);
+      circle.setAttribute('stroke-width', '4');
+      circle.style.transition = 'fill 0.15s ease';
 
       const label = document.createElementNS(SVG_NS, 'text');
       label.setAttribute('x', sig.x);
       label.setAttribute('y', sig.y);
       label.setAttribute('text-anchor', 'middle');
       label.setAttribute('dominant-baseline', 'central');
-      label.setAttribute('fill', '#fff');
+      label.setAttribute('fill', pal.creamOnDark);
+      label.setAttribute('stroke', pal.outline);
+      label.setAttribute('stroke-width', '3');
+      label.setAttribute('paint-order', 'stroke');
+      label.setAttribute('stroke-linejoin', 'round');
       label.setAttribute('font-size', '18');
-      label.setAttribute('font-family', 'sans-serif');
+      label.setAttribute('font-family', pal.font);
+      label.setAttribute('font-weight', '700');
       label.style.pointerEvents = 'none';
       label.textContent = sig.label;
 
@@ -116,8 +121,8 @@ const SchemaPro = {
 
       if (label === targets[ti]) {
         found.add(label);
-        circle.setAttribute('fill', '#43a047'); // correct = green, stays found
-        circle.setAttribute('stroke', '#1b5e20');
+        circle.setAttribute('fill', pal.green); // correct = green, stays found
+        circle.setAttribute('stroke', pal.outline);
         ti++;
         if (ti >= targets.length) {
           promptEl.textContent = 'Schematic complete! 🎉';
@@ -129,9 +134,9 @@ const SchemaPro = {
         health--;
         renderHealth();
         const original = circle.getAttribute('fill');
-        circle.setAttribute('fill', '#e53935'); // brief wrong flash
+        circle.setAttribute('fill', pal.red); // brief wrong flash
         setTimeout(() => {
-          if (circle.getAttribute('fill') === '#e53935') {
+          if (circle.getAttribute('fill') === pal.red) {
             circle.setAttribute('fill', original);
           }
         }, 300);

@@ -52,7 +52,9 @@ body::after {
 }
 
 /* ---------- Title (red letters, cream-outlined, Balatro logo) */
-#app h1 {
+/* Scoped to the direct-child menu title so it never leaks onto the
+   login card's <h1>, which has its own styling. */
+#app > h1 {
   text-align: center;
   font-family: var(--font-display);
   font-weight: var(--weight-bold);
@@ -69,7 +71,7 @@ body::after {
      0    9px 0 rgba(0, 0, 0, 0.40);
 }
 /* Gold "score" chip badge above the title. */
-#app h1::before {
+#app > h1::before {
   content: '★ LEARN THE LINES ★';
   display: block;
   width: fit-content;
@@ -322,6 +324,211 @@ body::after {
   z-index: 1;
 }
 
+/* ============================================================
+   Login screen — a cream playing-card sign-in.
+   ============================================================ */
+.login-screen {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5) 0;
+}
+.login-card {
+  width: min(420px, 100%);
+  background: var(--card-cream);
+  border: var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-6) var(--space-5) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  text-align: center;
+  animation: tg-deal var(--dur-slow) var(--ease-spring) both;
+}
+.login-badge {
+  width: fit-content;
+  margin: 0 auto;
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+  color: var(--outline);
+  background: var(--money-gold);
+  border: var(--border);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--bevel), var(--shadow-soft);
+  padding: var(--space-2) var(--space-4);
+}
+.login-title {
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-3xl);
+  line-height: var(--leading-tight);
+  margin: var(--space-2) 0 0;
+  color: var(--mult-red);
+  text-shadow:
+    -2px -2px 0 var(--card-cream), 2px -2px 0 var(--card-cream),
+    -2px  2px 0 var(--card-cream), 2px  2px 0 var(--card-cream),
+     0    5px 0 rgba(0, 0, 0, 0.30);
+}
+.login-sub {
+  margin: 0 var(--space-2) var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--ink-soft);
+}
+.login-error {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  color: var(--cream-on-dark);
+  background: var(--mult-red);
+  border: var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--bevel);
+  padding: var(--space-2) var(--space-3);
+  text-shadow: var(--text-outline);
+}
+.login-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  text-align: left;
+}
+.login-field span {
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-xs);
+  color: var(--ink-soft);
+  letter-spacing: var(--tracking-wide);
+}
+.login-field input {
+  font-family: var(--font-display);
+  font-weight: var(--weight-medium);
+  font-size: var(--text-base);
+  color: var(--ink);
+  background: var(--card-cream-2);
+  border: var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 3px 0 rgba(0, 0, 0, 0.12);
+  padding: var(--space-3) var(--space-4);
+}
+.login-field input::placeholder { color: var(--ink-soft); opacity: 0.7; }
+.login-field input:focus-visible {
+  outline: 3px solid var(--money-gold);
+  outline-offset: 2px;
+}
+.login-btn {
+  margin-top: var(--space-3);
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-lg);
+  color: var(--cream-on-dark);
+  background: var(--money-gold);
+  border: var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--bevel), var(--shadow-btn);
+  padding: var(--space-3) var(--space-4);
+  cursor: pointer;
+  text-shadow: var(--text-outline);
+  transition: transform var(--dur-fast) var(--ease-spring), filter var(--dur-fast) var(--ease-out);
+}
+.login-btn:hover { transform: translateY(-2px) scale(1.03); filter: brightness(1.06); }
+.login-btn:active { transform: translateY(3px) scale(0.98); box-shadow: inset 0 -2px 0 rgba(0,0,0,0.25); }
+.login-btn:disabled { filter: saturate(0.6); cursor: default; }
+
+/* ============================================================
+   Canvas games — framed felt playfield.
+   ============================================================ */
+.game-canvas {
+  display: block;
+  margin: var(--space-4) auto;
+  max-width: 100%;
+  height: auto;
+  background: var(--felt);
+  border: var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+.game-message {
+  max-width: 480px;
+  margin: var(--space-7) auto;
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-lg);
+  color: var(--ink);
+  background: var(--card-cream);
+  border: var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-6) var(--space-5);
+}
+
+/* ============================================================
+   SchemaPro — cream card with a clickable SVG schematic.
+   ============================================================ */
+.schemapro-container {
+  max-width: 520px;
+  margin: var(--space-5) auto;
+  text-align: center;
+  background: var(--card-cream);
+  border: var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-5);
+}
+.sp-health { font-size: var(--text-xl); margin-bottom: var(--space-2); }
+.sp-prompt {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-base);
+  color: var(--cream-on-dark);
+  background: var(--chip-blue);
+  border: var(--border);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--bevel);
+  padding: var(--space-2) var(--space-4);
+  margin: var(--space-2) 0 var(--space-4);
+  text-shadow: var(--text-outline);
+}
+.sp-prompt.is-error { background: var(--mult-red); }
+
+/* ---------- RememberBee health ----------------------------- */
+.rb-health { font-size: var(--text-2xl); margin-bottom: var(--space-2); }
+
+/* ============================================================
+   Toast — transient win/lose / feedback message.
+   ============================================================ */
+.tg-toast {
+  position: fixed;
+  left: 50%;
+  top: 18%;
+  transform: translate(-50%, -16px) scale(0.92);
+  z-index: 1000;
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-base);
+  color: var(--cream-on-dark);
+  background: var(--mult-red);
+  border: var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--bevel), var(--shadow-card);
+  padding: var(--space-3) var(--space-5);
+  text-shadow: var(--text-outline);
+  opacity: 0;
+  pointer-events: none;
+  max-width: min(90vw, 460px);
+  text-align: center;
+  transition: opacity var(--dur-base) var(--ease-out),
+              transform var(--dur-base) var(--ease-spring);
+}
+.tg-toast.is-in { opacity: 1; transform: translate(-50%, 0) scale(1); }
+.tg-toast--green { background: var(--green); }
+.tg-toast--blue { background: var(--chip-blue); }
+.tg-toast--gold { background: var(--money-gold); }
+
 /* ---------- Reduced motion --------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -333,6 +540,6 @@ body::after {
 /* ---------- Small screens ----------------------------------- */
 @media (max-width: 600px) {
   #app { padding: var(--space-5) var(--space-4) var(--space-7); }
-  #app h1 { font-size: var(--text-3xl); }
+  #app > h1 { font-size: var(--text-3xl); }
   .menu { grid-template-columns: 1fr; gap: var(--space-5); }
 }
