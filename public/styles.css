@@ -1,95 +1,290 @@
-body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; margin: 0; }
-#app { max-width: 900px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 32px; }
-.menu {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 32px;
-  justify-content: center;
-  margin-top: 32px;
-}
-.line-block {
-  background: #f0f4f8;
-  border-radius: 8px;
-  box-shadow: 0 1px 4px #0001;
-  padding: 20px 16px 16px 16px;
-  min-width: 220px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.line-block strong {
-  font-size: 1.1em;
-  margin-bottom: 12px;
-  color: #1976d2;
-}
-.line-block button {
-  margin: 4px 0;
-  padding: 8px 18px;
-  border: none;
-  border-radius: 6px;
-  background: #1976d2;
-  color: #fff;
-  font-size: 1em;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-}
-.line-block button:disabled {
-  background: #b0bec5;
-  color: #eee;
-  cursor: not-allowed;
-}
-.line-block button:not(:disabled):hover {
-  background: #1565c0;
+/* ============================================================
+   TrolleyGames — UI built against design-tokens.css
+   Aesthetic: SDMTS brand. Friendly Nunito Sans, charcoal ink on
+   cool light-gray, MTS red as the primary action color, soft
+   rounded cards and soft blurred shadows. Calm, professional,
+   transit-agency polish.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,400;0,6..12,600;0,6..12,700;0,6..12,800;0,6..12,900&display=swap');
+@import url('./src/design-tokens.css');
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  font-family: var(--font-base);
+  color: var(--ink);
+  background: var(--bg);
+  margin: 0;
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-/* RememberBee Game Styles */
+#app {
+  max-width: var(--app-max);
+  margin: var(--space-7) auto;
+  background: var(--surface);
+  border: 1px solid var(--border-c);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-7) var(--space-6);
+}
+
+/* ---------- Masthead --------------------------------------- */
+/* A red brand bar under the title echoes the MTS site header.  */
+#app h1 {
+  font-family: var(--font-display);
+  font-weight: var(--weight-black);
+  font-size: var(--text-3xl);
+  line-height: var(--leading-tight);
+  letter-spacing: -0.01em;
+  margin: 0;
+  color: var(--ink);
+}
+#app h1::first-letter { color: var(--brand-red); }
+#app h1::after {
+  content: '';
+  display: block;
+  width: 56px;
+  height: 5px;
+  border-radius: var(--radius-pill);
+  margin-top: var(--space-3);
+  background: var(--brand-red);
+}
+#app > p {
+  font-size: var(--text-base);
+  color: var(--ink-muted);
+  margin: var(--space-3) 0 var(--space-6);
+}
+
+/* ---------- Menu grid --------------------------------------- */
+.menu {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-5);
+  margin-top: var(--space-5);
+}
+
+/* ---------- Line cards -------------------------------------- */
+.line-block {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border-c);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-5) var(--space-4) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  overflow: hidden;
+  transition: transform var(--dur-base) var(--ease-out),
+              box-shadow var(--dur-base) var(--ease-out);
+}
+/* Color rail down the left edge keys the card to its line. */
+.line-block::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 5px;
+  background: var(--ink-muted);
+}
+.line-block:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Line name as a route badge with a colored dot. */
+.line-block strong {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-display);
+  font-weight: var(--weight-extrabold);
+  font-size: var(--text-base);
+  color: var(--ink);
+  margin: 0 0 var(--space-3);
+  padding-left: var(--space-1);
+}
+.line-block strong::before {
+  content: '';
+  flex: 0 0 auto;
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-pill);
+  background: var(--ink-muted);
+}
+
+/* Color-code rail + dot by line family. */
+.line-block:has(strong[data-line^="Blue"])::before   { background: var(--line-blue); }
+.line-block:has(strong[data-line^="Orange"])::before { background: var(--line-orange); }
+.line-block:has(strong[data-line^="Green"])::before  { background: var(--line-green); }
+.line-block strong[data-line^="Blue"]::before   { background: var(--line-blue); }
+.line-block strong[data-line^="Orange"]::before { background: var(--line-orange); }
+.line-block strong[data-line^="Green"]::before  { background: var(--line-green); }
+
+/* ---------- Buttons ----------------------------------------- */
+/* Level buttons read as quiet list rows; the next unlocked one
+   is the clear primary action (MTS red).                       */
+.line-block button {
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-sm);
+  text-align: left;
+  color: var(--ink);
+  background: var(--surface-2);
+  border: 1px solid var(--border-c);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out),
+              border-color var(--dur-fast) var(--ease-out),
+              color var(--dur-fast) var(--ease-out),
+              transform var(--dur-fast) var(--ease-out),
+              box-shadow var(--dur-fast) var(--ease-out);
+}
+.line-block button:not(:disabled):hover {
+  background: var(--surface);
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+/* The first enabled button = primary CTA in MTS red. */
+.line-block button:not(:disabled):first-of-type {
+  background: var(--brand-red);
+  border-color: var(--brand-red);
+  color: var(--on-brand);
+  box-shadow: var(--shadow-xs);
+}
+.line-block button:not(:disabled):first-of-type:hover {
+  background: var(--brand-red-hover);
+  border-color: var(--brand-red-hover);
+}
+.line-block button:not(:disabled):active { transform: translateY(0); }
+.line-block button:focus-visible {
+  outline: none;
+  box-shadow: var(--ring-focus);
+}
+.line-block button:disabled {
+  color: var(--disabled-ink);
+  background: var(--disabled-bg);
+  border-color: var(--disabled-border);
+  cursor: not-allowed;
+}
+
+/* ---------- Shared button utility (nav) --------------------- */
+.tg-btn {
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-sm);
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-4);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out),
+              border-color var(--dur-fast) var(--ease-out),
+              color var(--dur-fast) var(--ease-out),
+              box-shadow var(--dur-fast) var(--ease-out);
+}
+.tg-btn:hover { background: var(--surface-2); box-shadow: var(--shadow-sm); }
+.tg-btn:focus-visible { outline: none; box-shadow: var(--ring-focus); }
+.tg-btn--danger {
+  background: var(--brand-red);
+  border-color: var(--brand-red);
+  color: var(--on-brand);
+}
+.tg-btn--danger:hover { background: var(--brand-red-hover); border-color: var(--brand-red-hover); }
+
+/* ---------- Nav bar (Home / Logout) ------------------------- */
+#tg-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: var(--app-max);
+  margin: 0 auto var(--space-5);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border-c);
+}
+
+/* ---------- Entrance motion --------------------------------- */
+@keyframes tg-fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.menu .line-block { animation: tg-fade-up var(--dur-slow) var(--ease-out) both; }
+.menu .line-block:nth-child(2) { animation-delay: 40ms; }
+.menu .line-block:nth-child(3) { animation-delay: 80ms; }
+.menu .line-block:nth-child(4) { animation-delay: 120ms; }
+.menu .line-block:nth-child(5) { animation-delay: 160ms; }
+.menu .line-block:nth-child(6) { animation-delay: 200ms; }
+.menu .line-block:nth-child(7) { animation-delay: 240ms; }
+.menu .line-block:nth-child(8) { animation-delay: 280ms; }
+
+/* ============================================================
+   RememberBee (keypad) — kept in shell pass since it's
+   CSS-class driven. Other games styled in a follow-up.
+   ============================================================ */
 .rememberbee-container {
-  background: linear-gradient(135deg, #222 0%, #444 100%);
-  border-radius: 16px;
-  box-shadow: 0 4px 24px #0006;
-  padding: 32px 24px 24px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border-c);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-6) var(--space-5) var(--space-5);
   max-width: 420px;
-  margin: 40px auto;
-  color: #fff;
+  margin: var(--space-7) auto;
+  color: var(--ink);
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 #userEntryDisplay {
-  font-size: 2.2em;
-  letter-spacing: 0.15em;
-  margin: 18px 0 10px 0;
-  color: #ffe082;
-  text-shadow: 0 2px 8px #000a;
+  font-family: var(--font-display);
+  font-weight: var(--weight-extrabold);
+  font-size: var(--text-3xl);
+  letter-spacing: 0.12em;
+  margin: var(--space-4) 0 var(--space-2);
+  color: var(--brand-blue);
   min-height: 1.5em;
 }
 .keypad {
   display: grid;
-  grid-template-columns: repeat(3, 60px);
-  gap: 12px;
-  margin: 24px 0 0 0;
+  grid-template-columns: repeat(3, 64px);
+  gap: var(--space-3);
+  margin-top: var(--space-5);
 }
 .keypad button {
-  background: linear-gradient(180deg, #1976d2 0%, #0d47a1 100%);
-  color: #fff;
-  font-size: 1.3em;
-  border: none;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px #0003;
-  padding: 16px 0;
+  font-family: var(--font-display);
+  font-weight: var(--weight-extrabold);
+  font-size: var(--text-xl);
+  color: var(--ink);
+  background: var(--surface-2);
+  border: 1px solid var(--border-c);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-xs);
+  padding: var(--space-4) 0;
   cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
+  transition: background var(--dur-fast) var(--ease-out),
+              transform var(--dur-fast) var(--ease-out),
+              box-shadow var(--dur-fast) var(--ease-out);
 }
+.keypad button:hover { background: var(--surface); box-shadow: var(--shadow-sm); }
 .keypad button:active {
-  background: #1565c0;
-  transform: scale(0.97);
+  background: var(--brand-red-soft);
+  transform: scale(0.96);
 }
+
+/* Progress bar — soft track, MTS-red fill. */
 #progressBar {
   width: 100%;
-  height: 18px;
-  background: #333;
-  border-radius: 8px;
-  margin: 18px 0 8px 0;
+  height: 14px;
+  background: var(--bg);
+  border: 1px solid var(--border-c);
+  border-radius: var(--radius-pill);
+  margin: var(--space-4) 0 var(--space-2);
   overflow: hidden;
   position: relative;
 }
@@ -97,10 +292,10 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; margin: 
   content: '';
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, #ffe082 0%, #ffd600 100%);
+  background: var(--brand-red);
   width: var(--progress, 0%);
-  transition: width 0.3s;
-  border-radius: 8px;
+  transition: width var(--dur-slow) var(--ease-out);
+  border-radius: var(--radius-pill);
   position: absolute;
   left: 0; top: 0;
 }
@@ -108,10 +303,27 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; margin: 
   position: absolute;
   width: 100%;
   text-align: center;
-  color: #222;
-  font-weight: bold;
-  top: 0;
-  left: 0;
-  font-size: 1em;
-  line-height: 18px;
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  color: var(--ink);
+  top: 0; left: 0;
+  font-size: var(--text-xs);
+  line-height: 14px;
+  z-index: 1;
+}
+
+/* ---------- Reduced motion --------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ---------- Small screens ----------------------------------- */
+@media (max-width: 600px) {
+  #app { margin: var(--space-3); padding: var(--space-5) var(--space-4); }
+  #app h1 { font-size: var(--text-2xl); }
+  .menu { grid-template-columns: 1fr; gap: var(--space-4); }
 }

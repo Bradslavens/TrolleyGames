@@ -1,0 +1,93 @@
+/* ============================================================
+   TrolleyGames — "MTS Brand" Design Tokens
+   Modeled on sdmts.com: friendly Nunito Sans, charcoal ink on
+   cool light-gray, MTS red as the primary action color, indigo
+   as secondary, soft rounded corners and soft blurred shadows.
+   Components reference these vars only.
+   ============================================================ */
+
+:root {
+  /* --- Type family (SDMTS uses Nunito Sans everywhere) ------ */
+  --font-base: 'Nunito Sans', 'Segoe UI', system-ui, sans-serif;
+  --font-display: 'Nunito Sans', 'Segoe UI', system-ui, sans-serif;
+
+  /* --- Type scale (1.25 modular, 16px base) ----------------- */
+  --text-xs: 0.75rem;     /* 12 */
+  --text-sm: 0.875rem;    /* 14 */
+  --text-base: 1rem;      /* 16 */
+  --text-lg: 1.125rem;    /* 18 */
+  --text-xl: 1.375rem;    /* 22 */
+  --text-2xl: 1.75rem;    /* 28 */
+  --text-3xl: 2.25rem;    /* 36 */
+
+  --weight-regular: 400;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-extrabold: 800;
+  --weight-black: 900;
+  --leading-tight: 1.15;
+  --leading-normal: 1.55;
+  --tracking-wide: 0.02em;
+  --tracking-caps: 0.06em;
+
+  /* --- Color: surfaces & ink (from live site) --------------- */
+  --bg: #f3f4f6;          /* cool light-gray page bg          */
+  --surface: #ffffff;     /* white cards                       */
+  --surface-2: #f9fafb;   /* faint inset surface               */
+  --ink: #333132;         /* charcoal body text                */
+  --ink-muted: #4b5563;   /* slate secondary text              */
+  --border-c: #e5e7eb;    /* hairline borders                  */
+  --border-strong: #d8d8d8;
+
+  /* --- Color: MTS brand ------------------------------------- */
+  --brand-red: #da291c;        /* primary CTA / accent (logo red) */
+  --brand-red-hover: #b81f14;  /* darker on hover                 */
+  --brand-red-soft: #fdeceb;   /* red-tinted wash                 */
+  --brand-blue: #3344bb;       /* secondary / links               */
+  --brand-blue-hover: #28369a;
+
+  --on-brand: #ffffff;         /* text on red/blue fills          */
+
+  /* --- Color: trolley line identities (MTS line colors) ----- */
+  --line-blue: #0072ce;
+  --line-orange: #f58220;
+  --line-green: #00843d;
+
+  /* --- Color: status ---------------------------------------- */
+  --danger: var(--brand-red);
+  --disabled-bg: #eceef1;
+  --disabled-ink: #9aa1ac;
+  --disabled-border: #dfe3e8;
+
+  /* --- Spacing (4px base) ----------------------------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* --- Radius (soft, friendly) ------------------------------ */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-pill: 999px;
+
+  /* --- Shadows (soft, blurred — the SDMTS feel) ------------- */
+  --shadow-xs: 0 1px 2px rgba(17, 24, 39, 0.06);
+  --shadow-sm: 0 1px 3px rgba(17, 24, 39, 0.08), 0 1px 2px rgba(17, 24, 39, 0.06);
+  --shadow-md: 0 4px 12px rgba(17, 24, 39, 0.10);
+  --shadow-lg: 0 10px 24px rgba(17, 24, 39, 0.12);
+  --ring-focus: 0 0 0 3px rgba(51, 68, 187, 0.35);
+
+  /* --- Motion ----------------------------------------------- */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 360ms;
+
+  /* --- Layout ----------------------------------------------- */
+  --app-max: 1000px;
+}
