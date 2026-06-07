@@ -1,5 +1,5 @@
 import { correctSignals, correctSignalsTest, USE_TEST_SIGNALS } from '../data/correctSignals.js';
-import { incorrectSignals } from '../data/incorrectSignals.js';
+import { generateDistractors } from '../data/distractors.js';
 import { injectNavButtons } from '../shared.js';
 
 const HoppyTrain = {
@@ -33,10 +33,6 @@ const HoppyTrain = {
       app.innerHTML = '<div style="color:red;text-align:center;margin-top:40px;">No correct signals found for this line.<br>Please check your data.</div>';
       return;
     }
-    if (!incorrectSignals[selectedLine] || !Array.isArray(incorrectSignals[selectedLine]) || incorrectSignals[selectedLine].length === 0) {
-      app.innerHTML = '<div style="color:red;text-align:center;margin-top:40px;">No incorrect signals found for this line.<br>Please check your data.</div>';
-      return;
-    }
     let signalIndex = 0;
     let currentCorrectWord = activeCorrectSignals[selectedLine][signalIndex];
 
@@ -52,24 +48,16 @@ const HoppyTrain = {
       currentCorrectWord = activeCorrectSignals[selectedLine][signalIndex];
       spawnBoxes();
     }
-    function pickRandom(arr) {
-      return arr[Math.floor(Math.random() * arr.length)];
-    }
     function spawnBoxes() {
       const correctPos = Math.floor(Math.random() * 3);
       const words = [];
-      let usedIncorrect = [];
-      const incorrectArr = incorrectSignals[selectedLine] || [];
+      const incorrects = generateDistractors(currentCorrectWord, 2, { line: selectedLine });
+      let incIdx = 0;
       for (let i = 0; i < 3; i++) {
         if (i === correctPos) {
           words.push(currentCorrectWord);
         } else {
-          let word;
-          do {
-            word = pickRandom(incorrectArr);
-          } while (usedIncorrect.includes(word) || word === currentCorrectWord);
-          usedIncorrect.push(word);
-          words.push(word);
+          words.push(incorrects[incIdx++]);
         }
       }
       const sharedColumnId = Date.now() + '-' + Math.random();
@@ -226,8 +214,8 @@ const HoppyTrain = {
     function addNextCorrectBox(columnId) {
       const correctPos = Math.floor(Math.random() * 3);
       const boxHeight = canvas.height / 3;
-      let usedIncorrect = [];
-      const incorrectArr = incorrectSignals[selectedLine] || [];
+      const incorrects = generateDistractors(currentCorrectWord, 2, { line: selectedLine });
+      let incIdx = 0;
       const sharedColumnId = Date.now() + '-' + Math.random();
       let newBoxes = [];
       for (let i = 0; i < 3; i++) {
@@ -243,17 +231,12 @@ const HoppyTrain = {
             columnId: sharedColumnId
           });
         } else {
-          let word;
-          do {
-            word = pickRandom(incorrectArr);
-          } while (usedIncorrect.includes(word) || word === currentCorrectWord);
-          usedIncorrect.push(word);
           newBoxes.push({
             x: canvas.width,
             y: i * boxHeight,
             width: BOX_WIDTH,
             height: boxHeight,
-            word,
+            word: incorrects[incIdx++],
             isCorrect: false,
             visible: true,
             columnId: sharedColumnId
