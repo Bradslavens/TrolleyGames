@@ -73,12 +73,15 @@ app.use(
   })
 );
 
-// Rate limiters: strict on auth, looser on the rest.
+// Rate limiters: strict on auth, looser on the rest. Skipped under test so the
+// suite can fire many auth requests from one IP without tripping the limit.
+const skipInTest = () => process.env.NODE_ENV === 'test';
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 30, // 30 auth attempts per IP per 15 min
   standardHeaders: true,
   legacyHeaders: false,
+  skip: skipInTest,
   message: { error: 'Too many attempts, please try again later.' },
 });
 const apiLimiter = rateLimit({
@@ -86,6 +89,7 @@ const apiLimiter = rateLimit({
   max: 120,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: skipInTest,
 });
 app.use('/api/', apiLimiter);
 
@@ -251,6 +255,12 @@ app.get('/api/get-progress', requireAuth, (req, res) => {
 // Health check (handy for Render).
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// Only start listening when run directly (`node server.js`). When this module
+// is imported by tests we just export the app so supertest can drive it.
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
+module.exports = { app, db };
