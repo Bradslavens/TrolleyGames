@@ -9,6 +9,7 @@
 
 require('dotenv').config();
 
+const path = require('path');
 const express = require('express');
 const Database = require('better-sqlite3');
 const bcrypt = require('bcryptjs');
@@ -48,8 +49,24 @@ const app = express();
 app.set('trust proxy', 1); // correct client IPs behind Render's proxy (for rate-limit)
 
 // ---- Security middleware ----
-app.use(helmet());
+// Relax just the style/image CSP directives: the games legitimately use inline
+// style attributes and data: images. Everything else keeps helmet's defaults.
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        'style-src': ["'self'", "'unsafe-inline'"],
+        'img-src': ["'self'", 'data:'],
+      },
+    },
+  })
+);
 app.use(express.json({ limit: '10kb' })); // cap body size to blunt payload DoS
+
+// Serve the front-end (public/) so a single `node server.js` runs the whole app
+// locally on one origin. In production Render serves public/ as a separate
+// static site, so this is just a convenience and does no harm there.
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // CORS: allowlist from env (comma-separated) or sane local defaults.
 const allowedOrigins = (
