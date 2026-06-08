@@ -58,6 +58,18 @@ export async function login() {
   }
 }
 
+// Who is the logged-in user, and are they an admin? Used to decide whether to
+// show the schematic editor. Falls back to a non-admin on any error.
+export async function getMe() {
+  try {
+    const res = await fetch(`${API_BASE_URL}api/me`, { headers: authHeaders() });
+    if (!res.ok) return { username: localStorage.getItem('tg_username'), isAdmin: false };
+    return await res.json();
+  } catch {
+    return { username: localStorage.getItem('tg_username'), isAdmin: false };
+  }
+}
+
 // Fetch progress for all lines. On an auth failure, clears the session so the
 // next load re-prompts for login.
 export async function getProgress(user) {
