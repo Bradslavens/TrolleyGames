@@ -1,6 +1,7 @@
 import { correctSignals, correctSignalsTest, USE_TEST_SIGNALS } from '../data/correctSignals.js';
 import { generateDistractors } from '../data/distractors.js';
 import { injectNavButtons, palette } from '../shared.js';
+import { nextTrack } from './signalSlayerLogic.js';
 
 const SignalSlayer = {
   start(line, user, { onWin, onLose }) {
@@ -166,7 +167,7 @@ const SignalSlayer = {
         outlinedText(gameWon ? 'Congratulations!' : 'Game Over!', centerX, centerY,
           '700 40px "Pixelify Sans", sans-serif', gameWon ? pal.gold : pal.red);
         if (!gameWon) {
-          outlinedText('Press Enter to retry', centerX, centerY + 44,
+          outlinedText('Tap or press Enter to retry', centerX, centerY + 44,
             '700 18px "Pixelify Sans", sans-serif', pal.creamOnDark);
         }
         ctx.restore();
@@ -179,18 +180,64 @@ const SignalSlayer = {
         requestAnimationFrame(gameLoop);
       }
     }
-    window.addEventListener('keydown', e => {
-      if (gameOver && !gameWon && (e.code === 'Enter' || e.code === 'NumpadEnter' || e.code === 'Space')) {
+    // Shared controls, used by keyboard, on-screen buttons and canvas taps so
+    // the game is playable on a touchscreen with no physical keyboard.
+    function move(direction) {
+      if (gameOver) return;
+      playerTrack = nextTrack(playerTrack, direction, TRACKS);
+    }
+    // On game over (other than a win) any input restarts the round. On desktop
+    // that's Enter/Space; on mobile it's a tap, since there is no Enter key.
+    function tryRetry() {
+      if (gameOver && !gameWon) {
         resetGame();
         gameLoop();
-        return;
+        return true;
       }
-      if (e.code === 'ArrowLeft' && playerTrack > 0) {
-        playerTrack--;
-      } else if (e.code === 'ArrowRight' && playerTrack < TRACKS - 1) {
-        playerTrack++;
+      return false;
+    }
+    window.addEventListener('keydown', e => {
+      if (e.code === 'Enter' || e.code === 'NumpadEnter' || e.code === 'Space') {
+        if (tryRetry()) return;
+      }
+      if (e.code === 'ArrowLeft') {
+        move(-1);
+      } else if (e.code === 'ArrowRight') {
+        move(1);
       }
     });
+    // Tap the left/right half of the canvas to steer; tap to retry when over.
+    function handleCanvasTap(clientX) {
+      if (tryRetry()) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = clientX - rect.left;
+      move(x < rect.width / 2 ? -1 : 1);
+    }
+    canvas.addEventListener('click', e => handleCanvasTap(e.clientX));
+    canvas.addEventListener('touchstart', e => {
+      e.preventDefault();
+      handleCanvasTap(e.touches[0].clientX);
+    }, { passive: false });
+    // On-screen ◀ / ▶ buttons: the primary control on mobile, harmless on desktop.
+    const controls = document.createElement('div');
+    controls.className = 'ss-controls';
+    function makeControlBtn(label, ariaLabel, direction) {
+      const btn = document.createElement('button');
+      btn.className = 'tg-btn ss-control-btn';
+      btn.type = 'button';
+      btn.textContent = label;
+      btn.setAttribute('aria-label', ariaLabel);
+      // Use pointerdown so it responds immediately to a tap and never steals
+      // focus away from the game; prevent the synthetic click/scroll.
+      btn.addEventListener('pointerdown', e => {
+        e.preventDefault();
+        if (!tryRetry()) move(direction);
+      });
+      return btn;
+    }
+    controls.appendChild(makeControlBtn('◀', 'Move left', -1));
+    controls.appendChild(makeControlBtn('▶', 'Move right', 1));
+    app.appendChild(controls);
     // Start game
     resetGame();
     setTimeout(() => {
