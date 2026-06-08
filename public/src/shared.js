@@ -1,11 +1,24 @@
 import { getProgress } from './api.js';
 import { ALL_LINES, isCovered } from './data/schematicRegistry.js';
 
-export function showMenu(progress, onSelectLevel) {
+export function showMenu(progress, onSelectLevel, { isAdmin = false, onAdmin = null } = {}) {
   const app = document.getElementById('app');
   app.innerHTML = `<h1>TrolleyGames</h1><p>Select your line and level to begin.</p>`;
   const lines = ALL_LINES;
   const levels = ["HoppyTrain", "RememberBee", "SchemaPro", "SignalSlayer"];
+
+  // Admin: open the schematic coordinate editor.
+  if (isAdmin && onAdmin) {
+    const adminBar = document.createElement('div');
+    adminBar.className = 'admin-bar';
+    const btn = document.createElement('button');
+    btn.className = 'tg-btn';
+    btn.textContent = '⚙ Edit schematics (admin)';
+    btn.onclick = onAdmin;
+    adminBar.appendChild(btn);
+    app.appendChild(adminBar);
+  }
+
   const menu = document.createElement('div');
   menu.className = 'menu';
   lines.forEach(line => {

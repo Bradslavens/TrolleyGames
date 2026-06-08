@@ -58,6 +58,18 @@ describe('layoutSchematic', () => {
     expect(station.y).not.toBe(sig.y);
   });
 
+  it('exposes mapping meta that inverts y back to the milepost (admin drag)', () => {
+    const L = layoutSchematic({ elements: [
+      { type: 'signal', label: 'A', track: 'R', pos: 11 },
+      { type: 'signal', label: 'B', track: 'R', pos: 14 },
+    ]});
+    const { pad, pxPerMile, maxPos } = L.meta;
+    const yToPos = (y) => maxPos - (y - pad) / pxPerMile;
+    const a = L.signals.find((s) => s.label === 'A');
+    // y -> pos round-trips to the original milepost
+    expect(yToPos(a.y)).toBeCloseTo(11, 5);
+  });
+
   it('maps crossover endpoints to the track xs', () => {
     const L = layoutSchematic({ elements: [
       { type: 'crossover', fromTrack: 'L', toTrack: 'R', posStart: 11, posEnd: 11.2 },

@@ -33,6 +33,15 @@ if (!process.env.JWT_SECRET) {
 }
 const TOKEN_TTL = '7d';
 
+// Usernames that should be granted admin (the schematic coordinate editor).
+// Comma-separated in ADMIN_USERNAMES; a matching account is flagged is_admin
+// on its next login/registration. server/scripts/make-admin.mjs can also flag
+// an existing user directly.
+const ADMIN_USERNAMES = (process.env.ADMIN_USERNAMES || '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+
 // Allowed line names — used to validate any line the client sends.
 const VALID_LINES = [
   'Blue Line North East',
@@ -125,7 +134,8 @@ db.exec(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
-    line TEXT
+    line TEXT,
+    is_admin INTEGER NOT NULL DEFAULT 0
   );
   CREATE TABLE IF NOT EXISTS progress (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -136,9 +146,18 @@ db.exec(`
   );
 `);
 
+// Migration: add is_admin to databases created before the column existed.
+try {
+  db.exec('ALTER TABLE users ADD COLUMN is_admin INTEGER NOT NULL DEFAULT 0');
+} catch {
+  /* column already exists */
+}
+
 // ---- Helpers ----
-function signToken(username) {
-  return jwt.sign({ username }, JWT_SECRET, { expiresIn: TOKEN_TTL });
+function signToken(username, isAdmin) {
+  return jwt.sign({ username, isAdmin: Boolean(isAdmin) }, JWT_SECRET, {
+    expiresIn: TOKEN_TTL,
+  });
 }
 
 // Express middleware: require a valid Bearer token, attach req.username.
@@ -153,6 +172,16 @@ function requireAuth(req, res, next) {
   } catch {
     return res.status(401).json({ error: 'Invalid or expired token' });
   }
+}
+
+// Require an authenticated admin. is_admin is read from the DB (authoritative),
+// not just trusted from the token.
+function requireAdmin(req, res, next) {
+  requireAuth(req, res, () => {
+    const row = getUser.get(req.username);
+    if (row && row.is_admin) return next();
+    return res.status(403).json({ error: 'Admin access required' });
+  });
 }
 
 // Validate the username/password shape on auth requests.
@@ -175,6 +204,19 @@ const getUser = db.prepare('SELECT * FROM users WHERE username = ?');
 const insertUser = db.prepare(
   'INSERT INTO users (username, password) VALUES (?, ?)'
 );
+const setAdminStmt = db.prepare('UPDATE users SET is_admin = ? WHERE username = ?');
+
+// Promote a user to admin if their name is in ADMIN_USERNAMES, then report
+// whether they are an admin (read back from the DB).
+function resolveAdmin(username) {
+  const row = getUser.get(username);
+  if (!row) return false;
+  if (ADMIN_USERNAMES.includes(username) && !row.is_admin) {
+    setAdminStmt.run(1, username);
+    return true;
+  }
+  return Boolean(row.is_admin);
+}
 
 // ---- Auth endpoints ----
 
@@ -187,7 +229,8 @@ app.post('/api/register', authLimiter, (req, res) => {
   if (getUser.get(u)) return res.status(409).json({ error: 'Username taken' });
   const hash = bcrypt.hashSync(password, 10);
   insertUser.run(u, hash);
-  res.json({ success: true, token: signToken(u), username: u });
+  const isAdmin = resolveAdmin(u);
+  res.json({ success: true, token: signToken(u, isAdmin), username: u, isAdmin });
 });
 
 // Login: verify existing account.
@@ -206,7 +249,8 @@ app.post('/api/login', authLimiter, (req, res) => {
   if (!user || !ok) {
     return res.status(401).json({ error: 'Invalid credentials' });
   }
-  res.json({ success: true, token: signToken(u), username: u });
+  const isAdmin = resolveAdmin(u);
+  res.json({ success: true, token: signToken(u, isAdmin), username: u, isAdmin });
 });
 
 // Login-or-create: convenience for this personal study app. Still requires a
@@ -222,11 +266,13 @@ app.post('/api/login-or-create', authLimiter, (req, res) => {
     if (!bcrypt.compareSync(password, user.password)) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
-    return res.json({ success: true, token: signToken(u), username: u });
+    const isAdmin = resolveAdmin(u);
+    return res.json({ success: true, token: signToken(u, isAdmin), username: u, isAdmin });
   }
   const hash = bcrypt.hashSync(password, 10);
   insertUser.run(u, hash);
-  res.json({ success: true, token: signToken(u), username: u, created: true });
+  const isAdmin = resolveAdmin(u);
+  res.json({ success: true, token: signToken(u, isAdmin), username: u, isAdmin, created: true });
 });
 
 // ---- Data endpoints (all authenticated; username comes from the token) ----
@@ -274,6 +320,18 @@ app.get('/api/get-progress', requireAuth, (req, res) => {
   }
   const row = getProgressStmt.get(req.username, line);
   res.json({ levelIdx: row ? row.levelIdx : 0 });
+});
+
+// Who am I — lets the front-end decide whether to show the admin editor.
+app.get('/api/me', requireAuth, (req, res) => {
+  const row = getUser.get(req.username);
+  res.json({ username: req.username, isAdmin: Boolean(row && row.is_admin) });
+});
+
+// Admin-only ping (the schematic editor itself is client-side + JSON export,
+// but this confirms the role server-side and guards any future admin actions).
+app.get('/api/admin/check', requireAdmin, (req, res) => {
+  res.json({ admin: true, username: req.username });
 });
 
 // Health check (handy for Render).

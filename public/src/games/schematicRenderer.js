@@ -72,6 +72,9 @@ export function layoutSchematic(schematic, opts = {}) {
     viewBox: [0, 0, o.W, H],
     xL: o.xL,
     xR: o.xR,
+    // Mapping params, so callers (the admin editor) can invert a screen y back
+    // to a milepost: pos = maxPos - (y - pad) / pxPerMile.
+    meta: { pad: o.pad, pxPerMile: o.pxPerMile, maxPos, minPos },
     trackTop: y(maxPos) - 24,
     trackBottom: y(minPos) + 24,
     signals,
