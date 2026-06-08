@@ -11,6 +11,10 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
+/* Stop mobile browsers from treating fast button taps as a double-tap-to-zoom
+   gesture (e.g. the RememberBee keypad). Normal pinch-zoom still works. */
+button { touch-action: manipulation; }
+
 body {
   font-family: var(--font-base);
   color: var(--cream-on-dark);
