@@ -466,6 +466,26 @@ body::after {
 }
 
 /* ============================================================
+   SignalSlayer — on-screen left/right controls for touch devices.
+   ============================================================ */
+.ss-controls {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-5);
+  margin: var(--space-2) auto var(--space-5);
+}
+.ss-control-btn {
+  width: 96px;
+  height: 72px;
+  font-size: var(--text-2xl, 2rem);
+  line-height: 1;
+  /* Big, finger-friendly tap targets; don't let a long-press select the glyph. */
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ============================================================
    SchemaPro — cream card with a clickable SVG schematic.
    ============================================================ */
 .schemapro-container {
