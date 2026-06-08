@@ -24,8 +24,8 @@ describe('lineSlug', () => {
 });
 
 describe('buildSchematic', () => {
-  const line = 'Blue Line South East';
-  const signals = correctSignals[line]; // ["154","16","226","287","296"]
+  const line = 'Orange Line East';
+  const signals = correctSignals[line]; // real, schematic-derived signal codes
 
   it('produces one point per signal, in order, with matching labels', () => {
     const s = buildSchematic(line, signals);

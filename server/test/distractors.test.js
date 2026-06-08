@@ -1,14 +1,17 @@
 // Tests for the realistic-distractor generator used by HoppyTrain / SignalSlayer.
-// The wrong answers shown next to the correct signal must look like real signal
-// numbers (digit-shuffles, near-misses, or real signals from other lines) so the
-// correct answer is not obvious — e.g. for 154, things like 514 / 156 / 265, not
-// 555 / 666.
+// The wrong answers shown next to the correct signal must look like real MTS
+// signal codes — look-alikes of the answer (same letters, perturbed number) or
+// genuine codes borrowed from elsewhere — e.g. for "E1340", things like
+// "E1430" / "E1240" / "E1236", never "abc" or an obvious fake.
 
 import { describe, it, expect } from 'vitest';
 import { generateDistractors } from '../../public/src/data/distractors.js';
 import { correctSignals } from '../../public/src/data/correctSignals.js';
 
-const ALL = [...new Set(Object.values(correctSignals).flat())];
+const LINE = 'Orange Line East';
+const ANSWER = 'E1340'; // a real Orange Line East signal
+const ALL = [...new Set(Object.values(correctSignals).flat().map(String))];
+
 // A deterministic RNG so results are reproducible in tests.
 const seededRng = (seed = 1) => () => {
   seed = (seed * 1103515245 + 12345) & 0x7fffffff;
@@ -17,72 +20,66 @@ const seededRng = (seed = 1) => () => {
 
 describe('generateDistractors', () => {
   it('returns the requested number of distractors', () => {
-    const d = generateDistractors('154', 2, { line: 'Blue Line South East' });
-    expect(d).toHaveLength(2);
+    expect(generateDistractors(ANSWER, 2, { line: LINE })).toHaveLength(2);
+    expect(generateDistractors(ANSWER, 3, { line: LINE })).toHaveLength(3);
   });
 
   it('never includes the correct answer', () => {
     for (let i = 0; i < 50; i++) {
-      const d = generateDistractors('154', 2, { line: 'Blue Line South East' });
-      expect(d).not.toContain('154');
+      expect(generateDistractors(ANSWER, 2, { line: LINE })).not.toContain(ANSWER);
     }
   });
 
-  it('never includes another correct signal from the same line (no ambiguity)', () => {
-    const lineSignals = correctSignals['Blue Line South East']; // 154,16,226,287,296
+  it('never includes another real signal from the same line (no ambiguity)', () => {
+    const lineSignals = correctSignals[LINE];
     for (let i = 0; i < 50; i++) {
-      const d = generateDistractors('154', 2, { line: 'Blue Line South East' });
+      const d = generateDistractors(ANSWER, 2, { line: LINE });
       for (const sig of lineSignals) expect(d).not.toContain(sig);
     }
   });
 
   it('returns distinct distractors', () => {
     for (let i = 0; i < 50; i++) {
-      const d = generateDistractors('226', 2, { line: 'Blue Line South East' });
+      const d = generateDistractors('E1416', 2, { line: LINE });
       expect(new Set(d).size).toBe(d.length);
     }
   });
 
-  it('produces plausible values: same digit-length as the answer, or a real signal', () => {
+  it('produces plausible codes: a real code, or the same shape as the answer', () => {
     for (let i = 0; i < 100; i++) {
-      const d = generateDistractors('154', 2, { line: 'Blue Line South East' });
+      const d = generateDistractors(ANSWER, 2, { line: LINE });
       for (const cand of d) {
         const looksReal = ALL.includes(cand);
-        const sameLength = cand.length === '154'.length;
+        const sameLength = cand.length === ANSWER.length;
         expect(looksReal || sameLength).toBe(true);
-        expect(/^\d+$/.test(cand)).toBe(true); // numeric only — never 'abc'
+        expect(/\d/.test(cand)).toBe(true);   // a signal code always has digits
+        expect(/^[A-Za-z0-9]+$/.test(cand)).toBe(true); // never punctuation/garbage
       }
     }
   });
 
-  it('does not emit obvious fake patterns like 555 / 666 (unless they are real signals)', () => {
-    const obviousFakes = ['111', '222', '333', '444', '555', '666', '777', '888', '999'];
+  it("keeps the answer's letter prefix on look-alikes (or borrows a real code)", () => {
     for (let i = 0; i < 100; i++) {
-      const d = generateDistractors('154', 2, { line: 'Blue Line South East' });
+      const d = generateDistractors(ANSWER, 2, { line: LINE });
       for (const cand of d) {
-        if (!ALL.includes(cand)) expect(obviousFakes).not.toContain(cand);
+        const looksReal = ALL.includes(cand);
+        expect(looksReal || cand.startsWith('E')).toBe(true);
       }
     }
   });
 
-  it('handles a single-digit correct answer', () => {
-    const d = generateDistractors('2', 2, { line: 'Green Line East' });
+  it('handles a short code', () => {
+    const d = generateDistractors('E7B', 2, { line: 'Blue Line North East' });
     expect(d).toHaveLength(2);
     for (const cand of d) {
-      expect(cand).not.toBe('2');
-      expect(/^\d+$/.test(cand)).toBe(true);
+      expect(cand).not.toBe('E7B');
+      expect(/^[A-Za-z0-9]+$/.test(cand)).toBe(true);
     }
   });
 
   it('is reproducible when given a seeded rng', () => {
-    const a = generateDistractors('287', 2, {
-      line: 'Blue Line South East',
-      rng: seededRng(42),
-    });
-    const b = generateDistractors('287', 2, {
-      line: 'Blue Line South East',
-      rng: seededRng(42),
-    });
+    const a = generateDistractors(ANSWER, 2, { line: LINE, rng: seededRng(42) });
+    const b = generateDistractors(ANSWER, 2, { line: LINE, rng: seededRng(42) });
     expect(a).toEqual(b);
   });
 });
