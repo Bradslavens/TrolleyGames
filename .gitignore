@@ -18,6 +18,10 @@ yarn-error.log
 .DS_Store
 Thumbs.db
 
+# Local scratch / notes (not part of the app)
+schematic-transcription-prompt.txt
+_*.html
+
 # Logs
 logs/
 *.log
