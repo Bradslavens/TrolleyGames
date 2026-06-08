@@ -5,48 +5,37 @@
 // The rich schematics in public/src/data/schematics/<file>.json are the single
 // source of truth. schematicRegistry.js maps each line-direction to a schematic
 // + track + travel order. From those this script (re-)writes:
-//   - public/src/data/correctSignals.js   (used by HoppyTrain / SignalSlayer)
-//   - public/src/data/signals.js          (used by RememberBee)
-//   - public/src/data/schematics/<slug>.json  (straight-line layout SchemaPro
-//                                               still renders until Phase 2)
+//   - public/src/data/correctSignals.js   (HoppyTrain / SignalSlayer + quiz)
+//   - public/src/data/signals.js          (RememberBee)
+// SchemaPro renders the rich schematics directly (no generated layout needed).
 // Re-run this whenever a schematic JSON changes. Do NOT hand-edit the generated
 // files above.
 
-import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
-import {
-  buildSchematic,
-  lineSlug,
-  signalsForDirection,
-} from '../../public/src/data/schematicLayout.js';
+import { signalsForDirection } from '../../public/src/data/schematicLayout.js';
 import { schematicRegistry, ALL_LINES } from '../../public/src/data/schematicRegistry.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const dataDir = resolve(here, '../../public/src/data');
-const outDir = resolve(dataDir, 'schematics');
-mkdirSync(outDir, { recursive: true });
+const schematicsDir = resolve(dataDir, 'schematics');
 
-// Load each referenced rich schematic once.
-const schematicCache = new Map();
-function loadSchematic(file) {
-  if (!schematicCache.has(file)) {
-    const json = JSON.parse(readFileSync(resolve(outDir, `${file}.json`), 'utf8'));
-    schematicCache.set(file, json);
+const cache = new Map();
+const loadSchematic = (file) => {
+  if (!cache.has(file)) {
+    cache.set(file, JSON.parse(readFileSync(resolve(schematicsDir, `${file}.json`), 'utf8')));
   }
-  return schematicCache.get(file);
-}
+  return cache.get(file);
+};
 
 // Derive the ordered signal list for every line-direction (uncovered -> []).
 const correctSignals = {};
 for (const line of ALL_LINES) {
   const entry = schematicRegistry[line];
-  correctSignals[line] = entry
-    ? signalsForDirection(loadSchematic(entry.file), entry)
-    : [];
+  correctSignals[line] = entry ? signalsForDirection(loadSchematic(entry.file), entry) : [];
 }
 
-// A short subset for fast/quiz testing.
 const correctSignalsTest = {};
 for (const line of ALL_LINES) correctSignalsTest[line] = correctSignals[line].slice(0, 3);
 
@@ -56,36 +45,26 @@ const banner = (name) =>
   `// Edit the rich schematic JSON + schematicRegistry.js, then run\n` +
   `// \`npm run gen:schematics\`.\n`;
 
-// --- correctSignals.js ---
-const correctSignalsJs =
+writeFileSync(
+  resolve(dataDir, 'correctSignals.js'),
   banner('correctSignals.js') +
-  `export const USE_TEST_SIGNALS = false;\n` +
-  `export const correctSignals = ${JSON.stringify(correctSignals, null, 2)};\n` +
-  `export const correctSignalsTest = ${JSON.stringify(correctSignalsTest, null, 2)};\n`;
-writeFileSync(resolve(dataDir, 'correctSignals.js'), correctSignalsJs);
+    `export const USE_TEST_SIGNALS = false;\n` +
+    `export const correctSignals = ${JSON.stringify(correctSignals, null, 2)};\n` +
+    `export const correctSignalsTest = ${JSON.stringify(correctSignalsTest, null, 2)};\n`
+);
 
-// --- signals.js (RememberBee) ---
 const signalsObj = {};
 for (const line of ALL_LINES) signalsObj[line] = { signalList: correctSignals[line] };
-const signalsJs =
+writeFileSync(
+  resolve(dataDir, 'signals.js'),
   banner('signals.js') +
-  `const signals = ${JSON.stringify(signalsObj, null, 2)};\n` +
-  `export default signals;\n`;
-writeFileSync(resolve(dataDir, 'signals.js'), signalsJs);
-
-// --- straight-line schematic JSON per line (interim, used by SchemaPro until
-//     Phase 2 switches it to render the rich schematics directly) ---
-let count = 0;
-for (const line of ALL_LINES) {
-  const schematic = buildSchematic(line, correctSignals[line]);
-  writeFileSync(resolve(outDir, `${lineSlug(line)}.json`), JSON.stringify(schematic, null, 2) + '\n');
-  count++;
-}
+    `const signals = ${JSON.stringify(signalsObj, null, 2)};\n` +
+    `export default signals;\n`
+);
 
 const covered = ALL_LINES.filter((l) => schematicRegistry[l]);
 console.log('Derived signal data from rich schematics:');
 for (const line of ALL_LINES) {
   console.log(`  ${line}: ${correctSignals[line].length} signals${schematicRegistry[line] ? '' : '  (coming soon)'}`);
 }
-console.log(`Wrote correctSignals.js, signals.js, and ${count} straight-line schematics.`);
-console.log(`Covered lines: ${covered.length}/${ALL_LINES.length}.`);
+console.log(`Wrote correctSignals.js and signals.js. Covered lines: ${covered.length}/${ALL_LINES.length}.`);
